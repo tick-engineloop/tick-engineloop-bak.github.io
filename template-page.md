@@ -1,10 +1,12 @@
 ---
 layout: default
+title: Template page
+description: This is just template page
 ---
 
 Text can be **bold**, _italic_, or ~~strikethrough~~.
 
-[Link to Template page](./another-page.html).
+[Link to another page](./another-page.html).
 
 There should be whitespace between paragraphs.
 
