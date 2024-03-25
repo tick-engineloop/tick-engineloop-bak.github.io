@@ -4,6 +4,8 @@ title: EngineLoop.Tick
 description: EngineLoop.Tick's GitHub Pages.
 ---
 
+# [Build a Github Pages](./posts/GithubPages.html)
+
 # [Link to template page](./template-page.html)
 
 There should be whitespace between paragraphs. We recommend including a README, or a file with information about your project.
