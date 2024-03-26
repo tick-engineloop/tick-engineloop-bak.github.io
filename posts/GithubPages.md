@@ -4,15 +4,15 @@ title: Github Pages 搭建
 description: 介绍如何搭建一个最基础的 Github Pages
 ---
 
-1. 进入 Github Pages themes 页面，选择一个喜欢的主题，比如我选择的是 minimal：
+进入 Github Pages themes 页面，选择一个喜欢的主题，比如我选择的是 minimal：
 
 ![go to Github Pages themes and select minimal as Github Pages themes](../images/GitHubPages-1-themes.png)
 
-2. 进入选择的 minimal 主题仓库页面，点击 fork：
+进入选择的 minimal 主题仓库页面，点击 fork：
 
 ![go to minimal theme page and press fork button](../images/GitHubPages-2-minimal.png)
 
-3. 创建一个 fork 自 minimal 的主题仓库，仓库名称前缀必须是与 Owner 相同，后缀必须是 github.io，填写仓库名称后点击 Create fork 按钮完成 fork 任务：
+创建一个 fork 自 minimal 的主题仓库，仓库名称前缀必须是与 Owner 相同，后缀必须是 github.io，填写仓库名称后点击 Create fork 按钮完成 fork 任务：
 
 ![create a fork of minimal](../images/GitHubPages-3-forkMinimal.png)
 
