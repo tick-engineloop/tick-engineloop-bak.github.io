@@ -96,3 +96,5 @@ sudo v2raya
 当代理协议选择 HTTP 时， 代理端口选择 20171；当代理协议选择 SOCKS5 时， 代理端口选择 20170。配置完代理服务器后在 ACTIONS 栏下点击 应用选项 按钮以生效配置。当浏览器需要使用代理时，选择配置好的情景模式：
 
 ![select a scenario mode](../images/v2rayA-SwitchyOmega-2-selectScenarioMode.png)
+
+[back](./)

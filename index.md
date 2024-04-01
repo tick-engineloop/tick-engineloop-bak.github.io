@@ -6,7 +6,9 @@ description: EngineLoop.Tick's GitHub Pages.
 
 # [Build a Github Pages](./posts/GithubPages.html)
 
-# [Setup proxy when use v2rayA](./posts/v2rayA.md)
+# [Setup proxy when use v2rayA](./posts/v2rayA.html)
+
+# [随手记](./posts/HandyNotes/index.html)
 
 # [Link to template page](./template-page.html)
 
