@@ -4,6 +4,18 @@ title: 法向量变换
 description: 法向量变换矩阵推导
 ---
 
+<head>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            inlineMath: [['$','$']]
+            }
+        });
+    </script>
+</head>
+
 &emsp;&emsp;多边形模型中的顶点除了空间位置信息，还包括一些关于该顶点与周围表面关系的附加信息。在所有附加信息中，切向量和法向量是最常见的顶点附加信息，当进行模型变换时，不仅要变换顶点的位置，还要变换这些法向量和切向量。
 
 &emsp;&emsp;切向量可通过计算一个顶点位置和另外一个顶点位置之间的差获得，因此可以用变换后的两个顶点位置之间的差表示变换后的切向量。由于切向量和法向量不受平移变换的影响，所以在顶点的切向量变换中可使用去掉齐次项的 3x3 模型变换矩阵 $\mathbf{M}$。
