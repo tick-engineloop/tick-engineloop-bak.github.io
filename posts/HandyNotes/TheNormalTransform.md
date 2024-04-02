@@ -6,6 +6,14 @@ description: 法向量变换矩阵推导
 
 <head>
     <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+                inlineMath: [['$','$']]
+            }
+        });
+    </script>
 </head>
 
 &emsp;&emsp;多边形模型中的顶点除了空间位置信息，还包括一些关于该顶点与周围表面关系的附加信息。在所有附加信息中，切向量和法向量是最常见的顶点附加信息，当进行模型变换时，不仅要变换顶点的位置，还要变换这些法向量和切向量。
@@ -41,3 +49,19 @@ $$
 
 &emsp;&emsp;如果矩阵 $\mathbf{M}$ 为正交矩阵，那么 $\mathbf{M}^{-1}=\mathbf{M}^{\mathrm{T}}$，则 $(\mathbf{M}^{-1})^{\mathrm{T}}=\mathbf{M}$，这时为了计算法向量的变换矩阵的求逆矩阵和转置矩阵的操作可以避免。
 
+
+## 涉及的向量与矩阵知识点
+
+![Dot Product as Matrix-Matrix Multiplication](../../images/TheNormalMatrix-2-DotProductasMatrixMatrixMultiplication.png)
+
+![Matrix Arithmetic Properties](../../images/TheNormalMatrix-1-MatrixArithmeticProperties.png)
+
+
+> ## References:
+>
+> * [The Normal Matrix --- lighthouse3d](http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/)
+>
+> * [The Matrix --- immersivemath](https://immersivemath.com/ila/ch06_matrices/ch06.html)
+
+
+[back](./../../)
