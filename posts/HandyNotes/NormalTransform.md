@@ -6,14 +6,6 @@ description: 法向量变换矩阵推导
 
 <head>
     <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-            tex2jax: {
-            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-            inlineMath: [['$','$']]
-            }
-        });
-    </script>
 </head>
 
 &emsp;&emsp;多边形模型中的顶点除了空间位置信息，还包括一些关于该顶点与周围表面关系的附加信息。在所有附加信息中，切向量和法向量是最常见的顶点附加信息，当进行模型变换时，不仅要变换顶点的位置，还要变换这些法向量和切向量。
@@ -22,19 +14,16 @@ description: 法向量变换矩阵推导
 
 &emsp;&emsp;与切向量的变换相比，法向量的变换要复杂一些。下图是一个带有法向量 $\mathbf{T}$ 和切向量 $\mathbf{N}$ 的三角形：
 
-<center>
+<p align="center">
+  <img src="../../images/NormalTransform1.png">
+</p>
 
-![before transform](../../images/NormalTransform1.png)
-
-</center>
 
 当用一个包含非均匀缩放的非正交矩阵 $\mathbf{M}$ 变换法向量时，变换后的法向量常常指向一个与变换表面不垂直的方向，如下图所示：
 
-<center>
-
-![after transform](../../images/NormalTransform2.png)
-
-</center>
+<p align="center">
+  <img src="../../images/NormalTransform2.png">
+</p>
 
 &emsp;&emsp;因为切向量和法向量总是垂直的，则同一个顶点的切向量 $\mathbf{T}$ 和法向量 $\mathbf{N}$ 一定满足方程 $\mathbf{T} \cdot \mathbf{N}=0$（垂直向量点积为零），变换后的切向量 $\mathbf{T}^{\prime}$ 和法向量 $\mathbf{N}^{\prime}$ 也满足该方程，给定一个变换矩阵 $\mathbf{M}$，$\mathbf{T}^{\prime}=\mathbf{MT}$。假设法向量 $\mathbf{N}$ 的变换矩阵为 $\mathbf{G}$，则下式成立：
 
