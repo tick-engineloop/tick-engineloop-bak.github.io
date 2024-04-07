@@ -8,4 +8,6 @@ description: 随手记录一些知识点以备查
 
 # [The Normal Transform](./TheNormalTransform.html)
 
+# [Compute Shader](./ComputeShader.html)
+
 [back](./../../)
