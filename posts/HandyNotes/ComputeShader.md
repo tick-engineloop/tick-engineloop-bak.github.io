@@ -8,9 +8,9 @@ description: 随手记录一些小的知识点
 
 ## Compute space
 
-The "space" that a compute shader operates on is largely abstract. There is the concept of a work group, this is the smallest amount of compute operations that the user can execute. The number of work groups that a compute operation is executed with is defined by the user when they invoke the compute operation.
+The "space" that a compute shader operates on is largely abstract. There is the concept of a work group, this is the smallest amount of compute operations that the user can execute. The number of work groups that a compute operation is executed with is defined by the user when they invoke the compute operation. Work item is the smallest unit in work group.
 
-计算着色器操作的空间是极其抽象的。在这里有一个工作组的概念，它是用户可以执行的计算操作的最小单元。执行计算操作的工作组数由用户在调用计算操作时定义。
+计算着色器操作的空间是极其抽象的。在这里有一个工作组的概念，它是用户可以执行的计算操作的最小数量。执行计算操作的工作组数由用户在调用计算操作时定义。工作组中的最小单位称为工作项。
 
 When the system actually computes the work groups, it can do so in any order. So if it is given a work group set of (3, 1, 2), it could execute group (0, 0, 0) first, then skip to group (1, 0, 1), then jump to (2, 0, 0), etc. So your compute shader should not rely on the order in which individual groups are processed.
 
@@ -42,7 +42,7 @@ Compute Shaders have the following built-in input variables.
 ```glsl
 // In the compute language, gl_NumWorkGroups contains the total number of work groups that will execute the compute shader. 
 // The components of gl_NumWorkGroups are equal to the num_groups_x, num_groups_y, and num_groups_z parameters passed to the glDispatchCompute command.
-in uvec3 gl_NumWorkGroups ;         // 工作组的总数量
+in uvec3 gl_NumWorkGroups ;         // 将执行计算着色器的工作组的总数量
 
 // In the compute language, gl_WorkGroupSize contains the size of a workgroup declared by a compute shader. 
 // The size of the work group in the X, Y, and Z dimensions is stored in the x, y, and z components of gl_WorkGroupSize. 
@@ -52,13 +52,15 @@ const uvec3 gl_WorkGroupSize ;      // 由一个计算着色器声明的一个�
 
 // In the compute language, gl_WorkGroupID contains the 3-dimensional index of the global work group that the current compute shader invocation is executing within. 
 // The possible values range across the parameters passed into glDispatchCompute, i.e., from (0, 0, 0) to (gl_NumWorkGroups.x - 1, gl_NumWorkGroups.y - 1, gl_NumWorkGroups.z - 1).
-in uvec3 gl_WorkGroupID ;           // 当前计算着色器调用正执行在索引为 gl_WorkGroupID 的全局工作组内
+in uvec3 gl_WorkGroupID ;           // 当前计算着色器调用正执行在全局工作组内索引为 gl_WorkGroupID 的工作组上，即代表了当前计算着色器调用发生在哪个工作组内
 
 // In the compute language, gl_LocalInvocationID is an input variable containing the n-dimensional index of the local work invocation within the work group that the current shader is executing in. 
 // The possible values for this variable range across the local work group size, i.e., (0,0,0) to (gl_WorkGroupSize.x - 1, gl_WorkGroupSize.y - 1, gl_WorkGroupSize.z - 1).
-in uvec3 gl_LocalInvocationID ;     // 当前计算着色器正执行在索引为 gl_LocalInvocationID 的局部工作调用内
+in uvec3 gl_LocalInvocationID ;     // 当前计算着色器正执行在工作组内索引为 gl_LocalInvocationID 的局部工作调用里，即代表了当前计算着色器调用发生在工作组内的哪个位置
 
 // In the compute language, gl_GlobalInvocationID is a derived input variable containing the n-dimensional index of the work invocation within the global work group that the current shader is executing on. 
 // The value of gl_GlobalInvocationID is equal to gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID.
-in uvec3 gl_GlobalInvocationID ;    // 当前计算着色器调用正执行在全局工作组内的索引为 gl_GlobalInvocationID 的工作调用上
+in uvec3 gl_GlobalInvocationID ;    // 当前计算着色器正执行在全局工作组内索引为 gl_GlobalInvocationID 的工作调用上
 ```
+
+在一个计算着色器里面，gl_NumWorkGroups 代表了一个 dispatch compute 指令指定的工作组数量；gl_WorkGroupSize 代表了工作组大小，gl_WorkGroupID 说明了当前计算着色器调用是在哪个工作组内；gl_LocalInvocationID 说明了是在 gl_WorkGroupID 这个工作组内的什么位置，是一个工作组内部的索引；将所有工作组在一起考虑为一个大的统一的“工作组”，gl_GlobalInvocationID 是当前计算着色器调用在这个大的“工作组”中的索引。
