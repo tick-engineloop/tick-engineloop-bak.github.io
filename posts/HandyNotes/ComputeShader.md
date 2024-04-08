@@ -63,4 +63,4 @@ in uvec3 gl_LocalInvocationID ;     // 当前计算着色器正执行在工作�
 in uvec3 gl_GlobalInvocationID ;    // 当前计算着色器正执行在全局工作组内索引为 gl_GlobalInvocationID 的工作调用上
 ```
 
-在一个计算着色器里面，gl_NumWorkGroups 代表了一个 dispatch compute 指令指定的工作组数量；gl_WorkGroupSize 代表了工作组大小，gl_WorkGroupID 说明了当前计算着色器调用是在哪个工作组内；gl_LocalInvocationID 说明了是在 gl_WorkGroupID 这个工作组内的什么位置，是一个工作组内部的索引；将所有工作组在一起考虑为一个大的统一的“工作组”，gl_GlobalInvocationID 是当前计算着色器调用在这个大的“工作组”中的索引。
+在一个计算着色器里面，gl_NumWorkGroups 代表了一个 dispatch compute 指令指定的工作组数量；gl_WorkGroupSize 代表了工作组大小，gl_WorkGroupID 说明了当前计算着色器调用是在哪个工作组内；gl_LocalInvocationID 说明了是在 gl_WorkGroupID 这个工作组内的哪个调用上，是一个工作组内部的局部索引；将所有工作组的所有调用统筹考虑，gl_GlobalInvocationID 是当前计算着色器执行在全局的哪个调用上。
