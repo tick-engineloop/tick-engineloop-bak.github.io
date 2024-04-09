@@ -18,7 +18,7 @@ When the system actually computes the work groups, it can do so in any order. So
 
 Do not think that a single work group is the same thing as a single compute shader invocation; there's a reason why it is called a "group". Within a single work group, there may be many compute shader invocations. How many is defined by the compute shader itself, This is known as the local size of the work group.
 
-不要认为单个工作组与单个计算着色器调用是一回事；它被称为“组”是有原因的。在单个工作组中，可能有许多计算着色器调用。多少由计算着色器本身定义，这称为工作组的本地大小。
+不要认为单个工作组与单个计算着色器调用是一回事；它被称为“组”是有原因的。在单个工作组中，可能有许多计算着色器调用。多少由计算着色器本身定义，这称为工作组的局部大小。
 
 Every compute shader has a three-dimensional local size. This defines the number of invocations of the shader that will take place within each work group.
 
@@ -28,11 +28,12 @@ The individual invocations within a work group will be executed "in parallel". T
 
 工作组内的单个调用将“并行”执行。区分工作组数量和本地大小的主要目的是，工作组中的不同计算着色器调用可以通过一组共享变量和特殊函数进行通信。不同工作组中的调用（在同一计算着色器调度中）无法有效通信。
 
-## Inputs
+## Inputs and Output
 
+### Inputs
 Compute shaders cannot have any user-defined input variables. If you wish to provide input to a CS, you must use the implementation-defined inputs coupled with resources like storage buffers or Textures. 
 
-计算着色器不能有任何用户定义的输入变量。如果要向 CS 提供输入，则必须使用与资源（像存储缓冲区或纹理等）相结合的实现定义的输入。
+计算着色器不能有任何用户定义的输入变量。如果要向 CS 提供输入，则必须使用与资源（像存储缓冲区或纹理等）相结合的实现定义输入。
 
 Compute Shaders have the following built-in input variables.
 
@@ -64,3 +65,68 @@ in uvec3 gl_GlobalInvocationID ;    // 当前计算着色器正执行在全局�
 ```
 
 在一个计算着色器里面，gl_NumWorkGroups 代表了一个 dispatch compute 指令指定的工作组数量；gl_WorkGroupSize 代表了工作组大小，gl_WorkGroupID 说明了当前计算着色器调用是在哪个工作组内；gl_LocalInvocationID 说明了是在 gl_WorkGroupID 这个工作组内的哪个调用上，是一个工作组内部的局部索引；将所有工作组的所有调用统筹考虑，gl_GlobalInvocationID 是当前计算着色器执行在全局的哪个调用上。
+
+#### Local size
+
+The local size of a compute shader is defined within the shader, using a special layout input declaration:
+
+计算着色器的局部大小是在着色器中定义的，使用特殊的布局输入声明：
+
+```glsl
+layout(local_size_x = X​, local_size_y = Y​, local_size_z = Z​) in;
+```
+
+By default, the local sizes are 1, so if you only want a 1D or 2D work group space, you can specify just the X​ or the X​ and Y​ components.
+
+默认情况下，局部大小为 1，因此，如果您只需要 1D 或 2D 工作组空间，则可以仅指定 X 或 X 和 Y 组件。
+
+### Outputs
+Compute shaders do not have output variables. If you wish to have a CS generate some output, you must use a resource to do so. Shader storage buffers and Image Load Store operations are useful ways to output data from a CS.
+
+计算着色器没有输出变量。如果您希望让 CS 生成一些输出，则必须使用资源来执行此操作。着色器存储缓冲区和图像加载存储操作是从 CS 输出数据的有用方法。
+
+## Shared variables
+
+Global variables in compute shaders can be declared with the shared storage qualifier. The value of such variables are shared between all invocations within a work group. You cannot declare any opaque types as shared, but aggregates (arrays and structs) are fine.
+
+可以使用共享存储限定符声明计算着色器中的全局变量。此类变量的值在工作组内的所有调用之间共享。您不能将任何不透明类型声明为共享类型，但聚合（数组和结构）是可以的。
+
+At the beginning of a work group, these values are uninitialized. Also, the variable declaration cannot have initializers, so this is illegal:
+
+在工作组开始时，这些值是未初始化的。此外，变量声明不能有初始值设定项，因此这是非法的：
+
+```glsl
+shared uint foo = 0; // No initializers for shared variables.
+```
+
+## Shared memory coherency
+
+While all invocations within a work group are said to execute "in parallel", that doesn't mean that you can assume that all of them are executing in lock-step. If you need to ensure that an invocation has written to some variable so that you can read it, you need to synchronize execution with the invocations, not just issue a memory barrier (you still need the memory barrier though).
+
+虽然说工作组中的所有调用是“并行”执行的，但这并不意味着您可以认为所有调用都是同步执行的。如果你需要确保一个调用已经写入某个变量以便你可以读取它，你需要将执行与调用同步，而不仅仅是发出内存屏障（尽管你仍然需要内存屏障）。
+
+To synchronize reads and writes between invocations within a work group, you must employ the barrier() function. This forces an explicit synchronization between all invocations in the work group. Execution within the work group will not proceed until all other invocations have reach this barrier. Once past the barrier(), all shared variables previously written across all invocations in the group will be visible.
+
+若要在工作组内的调用之间同步读取和写入，必须使用 barrier（） 函数。这将强制在工作组中的所有调用之间显式同步。在所有其他调用到达此障碍之前，工作组内的执行不会继续进行。一旦越过 barrier（），之前在组中所有调用中写入的所有共享变量都将可见。
+
+## Atomic operations
+
+A number of atomic operations can be performed on shared variables of integral type (and vectors/arrays/structs of them). 
+
+可以对整型的共享变量（以及它们的向量/数组/结构体）执行一系列原子操作。
+
+All of the atomic functions return the original value. The term "nint" can be int or uint.
+
+所有原子函数都返回原始值。术语“nint”可以是 int 或 uint。
+
+```glsl
+nint atomicAdd(inout nint mem​, nint data​)
+nint atomicAdd（inout nint mem， nint data）
+```
+将 data​ 与 mem 中的内容执行原子相加，然后将相加值写入 mem, 并返回相加前 mem 中的原始内容。
+
+```glsl
+nint atomicMin(inout nint mem​, nint data​)
+nint atomicMin（inout nint mem， nint data）
+```
+将 data 与 mem 中的内容进行原子比较，然后将最小值写入 mem，并返回比较前 mem 中的原始内容。
