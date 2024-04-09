@@ -121,12 +121,12 @@ All of the atomic functions return the original value. The term "nint" can be in
 
 ```glsl
 nint atomicAdd(inout nint mem​, nint data​)
-nint atomicAdd（inout nint mem， nint data）
+nint atomicAdd(inout nint mem, nint data)
 ```
 将 data​ 与 mem 中的内容执行原子相加，然后将相加值写入 mem, 并返回相加前 mem 中的原始内容。
 
 ```glsl
 nint atomicMin(inout nint mem​, nint data​)
-nint atomicMin（inout nint mem， nint data）
+nint atomicMin(inout nint mem, nint data)
 ```
 将 data 与 mem 中的内容进行原子比较，然后将最小值写入 mem，并返回比较前 mem 中的原始内容。
