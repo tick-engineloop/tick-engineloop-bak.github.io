@@ -65,7 +65,7 @@ in uvec3 gl_GlobalInvocationID ;    // 当前计算着色器正执行在全局�
 
 // In the compute language, gl_LocalInvocationIndex is a derived input variable containing the 1-dimensional linearized index of the work invocation within the work group that the current shader is executing on. 
 // The value of gl_LocalInvocationIndex is equal to gl_LocalInvocationID.z * gl_WorkGroupSize.x * gl_WorkGroupSize.y + gl_LocalInvocationID.y * gl_WorkGroupSize.x + gl_LocalInvocationID.x.
-in uint gl_LocalInvocationIndex ;    // 当前计算着色器正执行在工作组内一维线性索性为 gl_LocalInvocationIndex 的工作调用上。是区别于局部工作调用的三维索引 gl_LocalInvocationID，对工作组内的所有调用按一维线性排序，依次为每个调用安排一个一维索引值，这个索引值就是 gl_LocalInvocationIndex 的值
+in uint gl_LocalInvocationIndex ;    // 当前计算着色器正执行在工作组内一维线性索引为 gl_LocalInvocationIndex 的工作调用上。是区别于局部工作调用的三维索引 gl_LocalInvocationID，对工作组内的所有调用按一维线性排序，依次为每个调用安排一个一维索引值，这个索引值就是 gl_LocalInvocationIndex 的值
 ```
 
 在一个计算着色器里面，gl_NumWorkGroups 代表了一个 dispatch compute 指令指定的工作组数量；gl_WorkGroupSize 代表了工作组大小，gl_WorkGroupID 说明了当前计算着色器调用是在哪个工作组内；gl_LocalInvocationID 说明了是在 gl_WorkGroupID 这个工作组内的哪个调用上，是一个工作组内部的局部索引；将所有工作组的所有调用统筹考虑，gl_GlobalInvocationID 是当前计算着色器执行在全局的哪个调用上。
