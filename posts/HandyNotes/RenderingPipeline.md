@@ -4,6 +4,18 @@ title: 计算机图形学编程语言随手记
 description: 随手记录一些小的知识点
 ---
 
+<head>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+                inlineMath: [['$','$']]
+            }
+        });
+    </script>
+</head>
+
 # Rendering Pipeline
 
 ## OpenGL
@@ -87,7 +99,7 @@ $$
 
 在这里，$x$，$y$，$width$，$height$，$nearVal$，$farVal$ 是由下列视口定义函数的参数指定的：
 
-```
+```c
 void glViewport(GLint x​, GLint y​, GLsizei width​, GLsizei height​);
 
 void glDepthRange(GLdouble nearVal​, GLdouble farVal​);
