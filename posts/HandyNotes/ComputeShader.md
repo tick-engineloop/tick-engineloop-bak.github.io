@@ -6,6 +6,14 @@ description: 随手记录一些小的知识点
 
 # Compute Shader
 
+- [Compute space](#compute-space)
+- [Inputs and Output](#inputs-and-output)
+    - [Inputs](#inputs)
+    - [Outputs](#outputs)
+- [Shared variables](#shared-variables)
+- [Shared memory coherency](#shared-memory-coherency)
+- [Atomic operations](#atomic-operations)
+
 ## Compute space
 
 The "space" that a compute shader operates on is largely abstract. There is the concept of a work group, this is the smallest amount of compute operations that the user can execute. The number of work groups that a compute operation is executed with is defined by the user when they invoke the compute operation. Work item is the smallest unit in work group.

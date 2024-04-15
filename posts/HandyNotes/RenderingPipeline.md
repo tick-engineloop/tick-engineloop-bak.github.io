@@ -18,6 +18,18 @@ description: 随手记录一些小的知识点
 
 # Rendering Pipeline
 
+- [OpenGL](#opengl)
+  - [Vertex Post-Processing](#vertex-post-processing)
+    - [Clipping](#clipping)
+    - [Perspective divide](#perspective-divide)
+    - [Viewport transform](#viewport-transform)
+  - [Fragment Shader](#fragment-shader)
+    - [Inputs](#inputs)
+  - [Others](#others)
+- [Vulkan](#vulkan)
+- [Conclusion](#conclusion)
+
+
 ## OpenGL
 
 OpenGL 渲染管线执行流程（标准版）：
