@@ -1,6 +1,6 @@
 ---
 layout: default
-title: 随手记
+title: HandyNotes
 description: 随手记录一些知识点以备查
 ---
 
