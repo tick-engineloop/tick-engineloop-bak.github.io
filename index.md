@@ -8,7 +8,7 @@ description: EngineLoop.Tick's GitHub Pages.
 
 # [Setup proxy when use v2rayA](./posts/v2rayA.html)
 
-# [随手记](./posts/HandyNotes/index.html)
+# [Handy Notes](./posts/HandyNotes/index.html)
 
 # [Link to template page](./template-page.html)
 

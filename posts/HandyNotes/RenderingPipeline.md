@@ -1,0 +1,121 @@
+---
+layout: default
+title: 计算机图形学编程语言随手记
+description: 随手记录一些小的知识点
+---
+
+# Rendering Pipeline
+
+## OpenGL
+
+OpenGL 渲染管线执行流程（标准版）：
+
+<p align="center">
+  <img src="../../images/RenderingPipeline-OpenGL-1.png">
+</p>
+
+上图中灰色阶段是可编程阶段，黄色阶段是固定功能阶段。在顶点着色器处理之后，顶点还要经过一系列固定函数处理步骤，图元裁切、透视除法和视口变换就是这些固定函数处理步骤中的一环，位于顶点后处理([Vertex Post-Processing](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing))阶段中。这里我们重点关注顶点后处理其中的图元裁切([Primitive Clipping](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Clipping))、透视除法([the perspective divide](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Perspective_divide))和到窗口空间的视口变换([the viewport transform](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Viewport_transform) to window space)。首先顶点着色器有如下的预定义输出：
+
+```glsl
+out gl_PerVertex
+{
+  vec4 gl_Position;
+  float gl_PointSize;
+  float gl_ClipDistance[];
+};
+```
+
+其中，gl_Position 是当前顶点的裁切空间输出位置。
+
+### Clipping
+
+收集前几个阶段生成的图元，然后将其裁切到视图体中。每个顶点都有一个裁切空间位置（即最后一个顶点处理阶段的 gl_Position 输出）。顶点的视图体定义如下：
+
+$$
+-w_{clip} \leqslant x_{clip} \leqslant w_{clip}
+\\
+-w_{clip} \leqslant y_{clip} \leqslant w_{clip}
+\\
+-w_{clip} \leqslant z_{clip} \leqslant w_{clip}
+$$
+
+这可以通过 [Depth Clamping](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Depth_clamping) 和添加用户定义的裁切平面来修改。
+
+### Perspective divide
+
+从裁切阶段返回的裁切空间位置通过下面等式转换为归一化设备坐标（NDC）：
+
+$$
+\begin{pmatrix}
+x_{ndc} \\
+y_{ndc} \\
+z_{ndc} \\
+\end{pmatrix}
+=
+\begin{pmatrix}
+\frac{x_{clip}}{w_{clip}} \\
+\\
+\frac{y_{clip}}{w_{clip}} \\
+\\
+\frac{z_{clip}}{w_{clip}} \\
+\end{pmatrix}
+$$
+
+### Viewport transform
+
+视口变换定义了顶点位置从 NDC 空间到窗口空间的变换。给定视口参数，我们可以通过下面的方程计算窗口空间坐标：
+
+$$
+\begin{pmatrix}
+x_{wnd} \\
+y_{wnd} \\
+z_{wnd} \\
+\end{pmatrix}
+=
+\begin{pmatrix}
+\frac{width}{2}x_{ndc} + x + \frac{width}{2} \\
+\\
+\frac{height}{2}y_{ndc} + y + \frac{height}{2} \\
+\\
+\frac{farVal - nearVal}{2}z_{ndc} + \frac{farVal + nearVal}{2}
+\end{pmatrix}
+$$
+
+在这里，$x$，$y$，$width$，$height$，$nearVal$，$farVal$ 是由下列视口定义函数的参数指定的：
+
+```glsl
+void glViewport(GLint x​, GLint y​, GLsizei width​, GLsizei height​);
+
+void glDepthRange(GLdouble nearVal​, GLdouble farVal​);
+
+void glDepthRangef(GLfloat nearVal​, GLfloat farVal​);
+```
+
+另外，这里引用 LearnOpenGL 中的一幅 OpenGL 渲染管线执行流程（简化版）图帮助加深理解：
+
+<p align="center">
+  <img src="../../images/RenderingPipeline-OpenGL-2.png">
+</p>
+
+## Vulkan
+
+Vulkan 图形管线执行流程：
+
+<p align="center">
+  <img src="../../images/RenderingPipeline-Vulkan.svg">
+</p>
+
+## Conclusion
+
+可以看到，图元装配是按照指定的拓扑将一个类似于 glDrawElements 这样的绘制指令涉及的一系列顶点组装成为目标形状的操作，OpenGL 的输入装配是在顶点着色器和片段着色器之间，而 Vulkan 的输入装配是在顶点着色器之前；OpenGL 的模版与深度测试默认是在【测试与混合】阶段执行，在后期 OpenGL 还加入了 Early Fragment Test 特性，允许模版与深度等测试在片段着色器之前执行。Vulkan 在片段着色器前后有一个 Early Per-Fragment Test 和 Late Per-Fragment Test, 可以指定模版与深度测试在哪个阶段执行，默认是在 Late Per-Fragment Test 阶段执行。
+
+
+> ## References:
+>
+> * [OpenGL Rendering Pipeline Overview](https://www.khronos.org/opengl/wiki/Rendering_Pipeline_Overview)
+>
+> * [Vulkan Rendering Pipeline Overview](https://docs.vulkan.org/spec/latest/chapters/pipelines.html)
+>
+> * [OpenGL Vertex Shader](https://www.khronos.org/opengl/wiki/Vertex_Shader)
+
+[back](./)

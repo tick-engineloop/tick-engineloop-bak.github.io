@@ -134,3 +134,5 @@ nint atomicMin(inout nint mem​, nint data​)
 nint atomicMin(inout nint mem, nint data)
 ```
 将 data 与 mem 中的内容进行原子比较，然后将最小值写入 mem，并返回比较前 mem 中的原始内容。
+
+[back](./)
