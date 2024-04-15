@@ -14,7 +14,11 @@ OpenGL 渲染管线执行流程（标准版）：
   <img src="../../images/RenderingPipeline-OpenGL-1.png">
 </p>
 
-上图中灰色阶段是可编程阶段，黄色阶段是固定功能阶段。在顶点着色器处理之后，顶点还要经过一系列固定函数处理步骤，图元裁切、透视除法和视口变换就是这些固定函数处理步骤中的一环，位于顶点后处理([Vertex Post-Processing](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing))阶段中。这里我们重点关注顶点后处理其中的图元裁切([Primitive Clipping](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Clipping))、透视除法([the perspective divide](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Perspective_divide))和到窗口空间的视口变换([the viewport transform](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Viewport_transform) to window space)。首先顶点着色器有如下的预定义输出：
+上图中灰色阶段是可编程阶段，黄色阶段是固定功能阶段。
+
+### Vertex Post-Processing
+
+在顶点着色器处理之后，顶点还要经过一系列固定函数处理步骤，图元裁切、透视除法和视口变换就是这些固定函数处理步骤中的一环，位于顶点后处理([Vertex Post-Processing](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing))阶段中。这里我们重点关注顶点后处理其中的图元裁切([Primitive Clipping](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Clipping))、透视除法([the perspective divide](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Perspective_divide))和到窗口空间的视口变换([the viewport transform](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Viewport_transform) to window space)。首先顶点着色器有如下的预定义输出：
 
 ```glsl
 out gl_PerVertex
@@ -27,7 +31,7 @@ out gl_PerVertex
 
 其中，gl_Position 是当前顶点的裁切空间输出位置。
 
-### Clipping
+#### Clipping
 
 收集前几个阶段生成的图元，然后将其裁切到视锥体中。每个顶点都有一个裁切空间位置（即最后一个顶点处理阶段的 gl_Position 输出）。顶点的视锥体定义如下：
 
@@ -41,7 +45,7 @@ $$
 
 这可以通过 [Depth Clamping](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Depth_clamping) 和添加用户定义的裁切平面来修改。
 
-### Perspective divide
+#### Perspective divide
 
 从裁切阶段返回的裁切空间位置通过下面等式转换为归一化设备坐标（NDC）：
 
@@ -61,7 +65,7 @@ z_{ndc} \\
 \end{pmatrix}
 $$
 
-### Viewport transform
+#### Viewport transform
 
 视口变换定义了顶点位置从 NDC 空间到窗口空间的变换。给定视口参数，我们可以通过下面的方程计算窗口空间坐标：
 
@@ -83,13 +87,30 @@ $$
 
 在这里，$x$，$y$，$width$，$height$，$nearVal$，$farVal$ 是由下列视口定义函数的参数指定的：
 
-```glsl
+```
 void glViewport(GLint x​, GLint y​, GLsizei width​, GLsizei height​);
 
 void glDepthRange(GLdouble nearVal​, GLdouble farVal​);
 
 void glDepthRangef(GLfloat nearVal​, GLfloat farVal​);
 ```
+### Fragment Shader
+
+片段着色器是为光栅化产生的片段生成一组颜色和一个深度值的着色器阶段。
+
+#### Inputs
+
+片段着色器有下面这些内置输入变量：
+
+```glsl
+in vec4 gl_FragCoord;
+in bool gl_FrontFacing;
+in vec2 gl_PointCoord;
+```
+
+其中，gl_FragCoord 是窗口空间中片段的位置。X、Y 和 Z 分量是片段的窗口空间位置。如果此着色器阶段未将 gl_FragDepth 写入深度缓冲区，则 Z 值将被写入深度缓冲区。W 分量是 $1/\mathsf{W_{clip}}$，这里 $\mathsf{W_{clip}}$ 是最后一个顶点处理阶段输出到 gl_Position 中的裁切空间顶点位置的 W 分量的插值。
+
+### Others
 
 另外，这里引用 LearnOpenGL 中的一幅 OpenGL 渲染管线执行流程（简化版）图帮助加深理解：
 
