@@ -1,7 +1,7 @@
 ---
 layout: default
-title: 计算机图形学编程语言随手记
-description: 随手记录一些小的知识点
+title: Rendering Pipeline
+description: 渲染管线中一些需要熟记的知识点
 ---
 
 <head>
