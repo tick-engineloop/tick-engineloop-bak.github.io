@@ -16,7 +16,6 @@ description: 渲染管线中一些需要熟记的知识点
     </script>
 </head>
 
-# Rendering Pipeline
 
 - [OpenGL](#opengl)
   - [Vertex Post-Processing](#vertex-post-processing)
@@ -30,7 +29,7 @@ description: 渲染管线中一些需要熟记的知识点
 - [Conclusion](#conclusion)
 
 
-## OpenGL
+# OpenGL
 
 OpenGL 渲染管线执行流程（标准版）：
 
@@ -40,7 +39,7 @@ OpenGL 渲染管线执行流程（标准版）：
 
 上图中灰色阶段是可编程阶段，黄色阶段是固定功能阶段。
 
-### Vertex Post-Processing
+## Vertex Post-Processing
 
 在顶点着色器处理之后，顶点还要经过一系列固定函数处理步骤，图元裁切、透视除法和视口变换就是这些固定函数处理步骤中的一环，位于顶点后处理([Vertex Post-Processing](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing))阶段中。这里我们重点关注顶点后处理其中的图元裁切([Primitive Clipping](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Clipping))、透视除法([the perspective divide](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Perspective_divide))和到窗口空间的视口变换([the viewport transform](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Viewport_transform) to window space)。首先顶点着色器有如下的预定义输出：
 
@@ -55,7 +54,7 @@ out gl_PerVertex
 
 其中，gl_Position 是当前顶点的裁切空间输出位置。
 
-#### Clipping
+### Clipping
 
 收集前几个阶段生成的图元，然后将其裁切到视锥体中。每个顶点都有一个裁切空间位置（即最后一个顶点处理阶段的 gl_Position 输出）。顶点的视锥体定义如下：
 
@@ -69,7 +68,7 @@ $$
 
 这可以通过 [Depth Clamping](https://www.khronos.org/opengl/wiki/Vertex_Post-Processing#Depth_clamping) 和添加用户定义的裁切平面来修改。
 
-#### Perspective divide
+### Perspective divide
 
 从裁切阶段返回的裁切空间位置通过下面等式转换为归一化设备坐标（NDC）：
 
@@ -89,7 +88,7 @@ z_{ndc} \\
 \end{pmatrix}
 $$
 
-#### Viewport transform
+### Viewport transform
 
 视口变换定义了顶点位置从 NDC 空间到窗口空间的变换。给定视口参数，我们可以通过下面的方程计算窗口空间坐标：
 
@@ -118,11 +117,11 @@ void glDepthRange(GLdouble nearVal​, GLdouble farVal​);
 
 void glDepthRangef(GLfloat nearVal​, GLfloat farVal​);
 ```
-### Fragment Shader
+## Fragment Shader
 
 片段着色器是为光栅化产生的片段生成一组颜色和一个深度值的着色器阶段。
 
-#### Inputs
+### Inputs
 
 片段着色器有下面这些内置输入变量：
 
@@ -141,7 +140,7 @@ layout(origin_upper_left) in vec4 gl_FragCoord;
 ```
 这意味着 gl_FragCoord 窗口空间的原点将是屏幕的左上角，而不是通常的左下角。OpenGL 窗口空间中将像素中心定义在半整数边界上。因此左下角像素的中心点为 (0.5, 0.5)。
 
-### Others
+## Others
 
 另外，这里引用 LearnOpenGL 中的一幅 OpenGL 渲染管线执行流程（简化版）图帮助加深理解：
 
@@ -149,7 +148,7 @@ layout(origin_upper_left) in vec4 gl_FragCoord;
   <img src="../../images/RenderingPipeline-OpenGL-2.png">
 </p>
 
-## Vulkan
+# Vulkan
 
 Vulkan 图形管线执行流程：
 
@@ -157,7 +156,7 @@ Vulkan 图形管线执行流程：
   <img src="../../images/RenderingPipeline-Vulkan.svg">
 </p>
 
-## Conclusion
+# Conclusion
 
 可以看到，图元装配是按照指定的拓扑将一个类似于 glDrawElements 这样的绘制指令涉及的一系列顶点组装成为目标形状的操作，OpenGL 的输入装配是在顶点着色器和片段着色器之间，而 Vulkan 的输入装配是在顶点着色器之前；OpenGL 的模版与深度测试默认是在【测试与混合】阶段执行，在后期 OpenGL 还加入了 Early Fragment Test 特性，允许模版与深度等测试在片段着色器之前执行。Vulkan 在片段着色器前后有一个 Early Per-Fragment Test 和 Late Per-Fragment Test, 可以指定模版与深度测试在哪个阶段执行，默认是在 Late Per-Fragment Test 阶段执行。
 
