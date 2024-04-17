@@ -16,6 +16,13 @@ description: world space、camera space、clip space、normalized device space. 
     </script>
 </head>
 
+- [Homogeneous coordinates](#homogeneous-coordinates)
+    - [Orthographic Projection](#orthographic-projection)
+    - [Perspective Projection](#perspective-projection)
+- [Forword](#forword)
+- [Backward](#backword)
+    - [从 NDC 坐标转换为摄像机空间坐标](#从-ndc-坐标转换为摄像机空间坐标)
+
 # Homogeneous coordinates
 
 三维笛卡尔坐标位置可以通过三维向量与 3x3 矩阵的乘法操作，来完成缩放和旋转的线性变换。但是平移操作是无法通过与 3x3 矩阵的乘法操作来完成的，因为线性变换总是将 (0, 0, 0) 映射到 (0, 0, 0)。一个可选的处理方式是进行一个额外的仿射变换(affine transformation)操作，将点 (0, 0, 0) 移动到另一个位置。但是加入这个额外的操作后意味着我们将无法再运用线性变换的各种特性，如将多个变换过程合并为一次变换。因此，我们需要找到一种方法，通过使用线性变换来表达平移过程。幸运的是，只要将三维空间坐标提升一个维度置入到四维空间当中，仿射变换就回归成为一种简单的线性变换了，也就是说我们可以直接使用 4x4 矩阵的乘法来完成模型的移动操作了。
@@ -156,3 +163,5 @@ $$
 $$
 V_{view} =  \frac{1.0}{w_{M_{projection}^{-1} \cdot V_{ndc}}} \cdot M_{projection}^{-1} \cdot V_{ndc} \tag{10}
 $$
+
+[back](./)
