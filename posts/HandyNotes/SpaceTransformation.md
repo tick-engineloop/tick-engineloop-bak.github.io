@@ -232,7 +232,7 @@ $$
 将式 (9) 代入式 (6)，最终可求得 $V_{world}$：
 
 $$
-V_{world} =  \frac{1.0}{w_{_{(M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc}}}} \cdot M_{projection}^{-1} \cdot V_{ndc} \tag{10}
+V_{world} =  \frac{1.0}{w_{_{(M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc}}}} \cdot(M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc} \tag{10}
 $$
 
 done.
