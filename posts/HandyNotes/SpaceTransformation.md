@@ -164,4 +164,12 @@ $$
 V_{view} =  \frac{1.0}{w_{M_{projection}^{-1} \cdot V_{ndc}}} \cdot M_{projection}^{-1} \cdot V_{ndc} \tag{10}
 $$
 
+done.
+
+> ## References:
+>
+> * [How to go from device coordinates back to worldspace in OpenGL (with explanation)](https://feepingcreature.github.io/math.html)
+>
+> * [Coordinate Systems --- LearnOpenGL](https://learnopengl-cn.github.io/01%20Getting%20started/08%20Coordinate%20Systems/)
+
 [back](./)
