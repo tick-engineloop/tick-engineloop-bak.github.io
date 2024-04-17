@@ -168,5 +168,7 @@ Vulkan 图形管线执行流程：
 > * [Vulkan Rendering Pipeline Overview](https://docs.vulkan.org/spec/latest/chapters/pipelines.html)
 >
 > * [OpenGL Vertex Shader](https://www.khronos.org/opengl/wiki/Vertex_Shader)
+>
+> * [OpenGL Fragment Shader](https://www.khronos.org/opengl/wiki/Fragment_Shader)
 
 [back](./)

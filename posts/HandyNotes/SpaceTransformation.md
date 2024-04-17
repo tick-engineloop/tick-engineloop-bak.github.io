@@ -22,6 +22,7 @@ description: world space、camera space、clip space、normalized device space. 
 - [Forword](#forword)
 - [Backward](#backword)
     - [从 NDC 坐标转换为摄像机空间坐标](#从-ndc-坐标转换为摄像机空间坐标)
+    - [从 NDC 坐标转换为世界空间坐标](#从-ndc-坐标转换为世界空间坐标)
 
 # Homogeneous coordinates
 
@@ -54,7 +55,7 @@ z       \\
 \end{pmatrix}
 $$
 
-所谓齐次坐标就是将一个原本是 n 维的向量用一个 n+1 维向量来表示。对于二维或三维的笛卡尔坐标点我们可以直接添加第四个分量（通常以符号 $w$ 标识），并设置值为 1.0 来实现齐次坐标的建立。
+所谓齐次坐标就是将一个原本是 n 维的向量用一个 n+1 维向量来表示。对于三维的笛卡尔坐标点我们可以直接添加第四个分量（通常以符号 $w$ 标识），并设置值为 1.0 来实现齐次坐标的建立。
 
 $$
 (2.0, \ 3.0, \ 5.0) \ \to \ (2.0, \ 3.0, \ 5.0, \ 1.0)
@@ -68,9 +69,9 @@ $$
 
 齐次坐标的第四个分量其实是用来实现透视投影变换的，并且如果所有的分量都除以一个相同的值，那么将不会改变它所表达的坐标位置。
 
-举例来说，以下所有的坐标都表示同一个点：(2.0, 3.0, 5.0, 1.0)、(4.0, 6.0, 10.0, 2.0)、(0.2, 0.3, 0.5, 0.1)。所以，齐次坐标所表示的其实是方向而不是位置。
+举例来说，以下所有的齐次坐标都表示同一个三维笛卡尔坐标点：(2.0, 3.0, 5.0, 1.0)、(4.0, 6.0, 10.0, 2.0)、(0.2, 0.3, 0.5, 0.1)。
 
-平移、旋转、缩放变换都不会改变 $w$ 的值。但透视投影变换会将 $w$ 分量修改为 1.0 以外的值。
+平移、旋转、缩放变换都不会改变 $w$ 的值。正射投影也不会改变 $w$ 的值，但透视投影变换会将 $w$ 分量修改为 1.0 以外的值。
 
 ## Orthographic Projection
 
@@ -90,17 +91,17 @@ $$
   <img src="../../images/SpaceTransformation-PerspectiveFrustum.png">
 </p>
 
-这种近大远小的效果可使用透视矩阵来完成。这个投影矩阵将给定的平截头体范围映射到裁剪空间，除此之外还修改了每个顶点坐标的 $w$ 分量，从而使得离观察者越远的顶点坐标 $w$ 分量越大。被变换到裁剪空间的坐标都会在 $-w$ 到 $w$ 的范围之间（任何大于这个范围的坐标都会被裁剪掉）。顶点坐标的每个分量都会除以它的 $w$ 分量，距离观察者越远顶点坐标就会越小。这是也是w分量非常重要的另一个原因，它能够帮助我们进行透视投影。最后的结果坐标就是处于标准化设备空间中的。
+这种近大远小的效果可使用透视矩阵来完成。这个投影矩阵将给定的平截头体范围映射到裁剪空间，除此之外还修改了每个顶点坐标的 $w$ 分量，使得离观察者越远的顶点坐标 $w$ 分量越大。被变换到裁剪空间的坐标都会在 $-w$ 到 $w$ 的范围之间（任何大于这个范围的坐标都会被裁剪掉）。顶点坐标的每个分量都会除以它的 $w$ 分量，距离观察者越远顶点坐标就会越小。这是 $w$ 分量非常重要的另一个原因，它能够帮助我们进行透视投影。最后的结果坐标就是处于标准化设备空间中的。
 
 # Forword
 
-假设已知投影矩阵 $M_{projection}$、视图矩阵$M_{view}$、模型矩阵$M_{model}$和局部空间坐标 $V_{local}$，一个顶点坐标将会根据以下过程被变换到裁剪坐标：
+假设已知投影矩阵 $M_{projection}$、视图矩阵 $M_{view}$、模型矩阵 $M_{model}$ 和局部空间坐标 $V_{local}$，一个顶点坐标将会根据以下过程被变换到裁剪坐标：
 
 $$
 V_{clip} = M_{projection} \cdot M_{view} \cdot M_{model} \cdot V_{local}
 $$
 
-注意矩阵运算不满足交换律，$V_{local}$ 应依次和 $M_{model}$、$M_{view}$、$M_{projection}$ 相乘。顶点着色器的输出要求所有的顶点都在裁剪空间内，最后的顶点应该被赋值到顶点着色器中的 gl_Position，OpenGL将会自动进行裁剪、透视除法和视口变换。
+注意矩阵运算不满足交换律，$V_{local}$ 应依次和 $M_{model}$、$M_{view}$、$M_{projection}$ 相乘。顶点着色器要求输出的所有顶点位置向量都是裁剪空间坐标，应该被赋值到顶点着色器中的 gl_Position，OpenGL将会自动进行裁剪、透视除法和视口变换。
 
 # Backword
 
@@ -137,31 +138,101 @@ $$
 将 $w_{clip}$ 移到矩阵乘的前面：
 
 $$
-V_{view} =  w_{clip} \cdot M_{projection}^{-1} \cdot V_{ndc} \tag{6}
+V_{view} 
+=  
+w_{clip} \cdot M_{projection}^{-1} \cdot V_{ndc} 
+= 
+w_{clip} \cdot \begin{pmatrix} x_{_{M_{projection}^{-1} \cdot V_{ndc}}} \\ \\  y_{_{M_{projection}^{-1} \cdot V_{ndc}}} \\ \\  z_{_{M_{projection}^{-1} \cdot V_{ndc}}} \\ \\ w_{_{M_{projection}^{-1} \cdot V_{ndc}}} \end{pmatrix} \tag{6}
 $$
 
-式 (6) 中只有 $w_{clip}$ 是未知的，所以接下来让我们来求取它。这里对于式 (6) 我们可以只观察其中的 $w$ 分量：
+式 (6) 中只有 $w_{clip}$ 是未知的，$M_{projection}$ 是从程序端传入着色器当中的投影变换矩阵，$V_{ndc}$ 是待转换到摄像机空间的标准化设备坐标，$M_{projection}$ 和 $V_{ndc}$ 均是已知的。所以接下来让我们来求取 $w_{clip}$，这里对于式 (6) 我们可以只观察其中的 $w$ 分量：
 
 $$
-w_{view} =  w_{clip} \cdot w_{M_{projection}^{-1} \cdot V_{ndc}} \tag{7}
+w_{view} =  w_{clip} \cdot w_{_{M_{projection}^{-1} \cdot V_{ndc}}} \tag{7}
 $$
 
 因为我们在开头假设了 $w_{view}=1.0$，所以由式 (7) 有：
 
 $$
-w_{clip} \cdot w_{M_{projection}^{-1} \cdot V_{ndc}} = 1.0 \tag{8}
+w_{clip} \cdot w_{_{M_{projection}^{-1} \cdot V_{ndc}}} = 1.0 \tag{8}
 $$
 
 进而求得 $w_{clip}$：
 
 $$
-w_{clip} = \frac{1.0}{w_{M_{projection}^{-1} \cdot V_{ndc}}} \tag{9}
+w_{clip} = \frac{1.0}{w_{_{M_{projection}^{-1} \cdot V_{ndc}}}} \tag{9}
 $$
 
-将式 (9) 代入式 (7)，最终可求得 $V_{view}$：
+将式 (9) 代入式 (6)，最终可求得 $V_{view}$：
 
 $$
-V_{view} =  \frac{1.0}{w_{M_{projection}^{-1} \cdot V_{ndc}}} \cdot M_{projection}^{-1} \cdot V_{ndc} \tag{10}
+V_{view} =  \frac{1.0}{w_{_{M_{projection}^{-1} \cdot V_{ndc}}}} \cdot M_{projection}^{-1} \cdot V_{ndc} \tag{10}
+$$
+
+done.
+
+## 从 NDC 坐标转换为世界空间坐标
+
+和上面类似，假设当 $w_{world}=1.0$ 时顶点在世界空间的坐标为 $V_{world}=(x_{world}, \ y_{world}, \ z_{world}, \ w_{world})$。对应的在裁剪空间和 NDC 中的坐标分别为 $V_{clip}=(x_{clip}, \ y_{clip}, \ z_{clip}, \ w_{clip})$ 和 $V_{ndc}=(x_{ndc}, \ y_{ndc}, \ z_{ndc}, \ w_{ndc})$。世界空间坐标与 NDC 坐标关系为：
+
+$$
+V_{ndc} = \frac{V_{clip}}{w_{clip}} \tag{1}
+$$
+
+$$
+V_{clip} = M_{projection} \cdot M_{view} \cdot V_{world} \tag{2}
+$$
+
+由式 (1) 可求得 $V_{clip}$：
+
+$$
+V_{clip} = w_{clip} \cdot V_{ndc} \tag{3}
+$$
+
+由式 (2) 可求得 $V_{world}$：
+
+$$
+V_{world} = (M_{projection} \cdot M_{view})^{-1} \cdot V_{clip} \tag{4}
+$$
+
+将式 (3) 代入式 (4) 可求得 $V_{world}$：
+
+$$
+V_{world} =  (M_{projection} \cdot M_{view})^{-1} \cdot (w_{clip} \cdot V_{ndc}) \tag{5}
+$$
+
+将 $w_{clip}$ 移到矩阵乘的前面：
+
+$$
+V_{world} 
+=  
+w_{clip} \cdot (M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc} 
+= 
+w_{clip} \cdot \begin{pmatrix} x_{_{(M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc}}} \\ \\  y_{_{(M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc}}} \\ \\  z_{_{(M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc}}} \\ \\ w_{_{(M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc}}} \end{pmatrix} \tag{6}
+$$
+
+式 (6) 中只有 $w_{clip}$ 是未知的，$M_{projection}$ 和 $M_{view}$ 是从程序端传入着色器当中的投影变换矩阵，$V_{ndc}$ 是待转换到世界空间的标准化设备坐标，它们均是已知的。所以接下来让我们来求取 $w_{clip}$，这里对于式 (6) 我们可以只观察其中的 $w$ 分量：
+
+$$
+w_{world} =  w_{clip} \cdot w_{_{(M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc}}} \tag{7}
+$$
+
+因为我们在开头假设了 $w_{world}=1.0$，所以由式 (7) 有：
+
+$$
+w_{clip} \cdot w_{_{(M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc}}} = 1.0 \tag{8}
+$$
+
+进而求得 $w_{clip}$：
+
+$$
+w_{clip} = \frac{1.0}{w_{_{(M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc}}}} \tag{9}
+$$
+
+将式 (9) 代入式 (6)，最终可求得 $V_{world}$：
+
+$$
+V_{world} =  \frac{1.0}{w_{_{(M_{projection} \cdot M_{view})^{-1} \cdot V_{ndc}}}} \cdot M_{projection}^{-1} \cdot V_{ndc} \tag{10}
 $$
 
 done.
