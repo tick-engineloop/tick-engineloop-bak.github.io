@@ -12,4 +12,6 @@ description: 随手记录一些知识点以备查
 
 # [Space Transformation](./SpaceTransformation.md)
 
+# [Hessian Normal Form](./HessianNormalForm.md)
+
 [back](./../../)
