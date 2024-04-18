@@ -45,27 +45,27 @@ and the constant
 和常量
 
 $$
-p = \frac{d}{\sqrt{a^2+b^2+c^2}}    \tag{5}
+q = \frac{d}{\sqrt{a^2+b^2+c^2}}    \tag{5}
 $$
 
 Then the Hessian normal form of the plane is
 
-然后平面的海森法线形式是
+以及平面内的点 $\mathbf{p}=(p_x,\ p_y,\ p_z)$，然后平面的海森法线形式是
 
 $$
-\mathbf{n} \cdot \mathbf{x} = -p    \tag{6}
+\mathbf{n} \cdot \mathbf{p} = -q    \tag{6}
 $$
 
-and $p$ is the distance of the plane from the origin. Here, the sign of $p$ determines the side of the plane on which the origin is located. If $p>0$, it is in the half-space determined by the direction of $\mathbf{n}$, and if $p<0$, it is in the other half-space.
+$\mathbf{n} \cdot \mathbf{p}$ is dot product of vectors, and $q$ is the distance of the plane from the origin. Here, the sign of $q$ determines the side of the plane on which the origin is located. If $q>0$, it is in the half-space determined by the direction of $\mathbf{n}$, and if $q<0$, it is in the other half-space.
 
-并且 $p$ 是从原点到平面的距离。$p$ 的符号决定了原点是位于平面的哪一边。如果 $p>0$，原点是在 $\mathbf{n}$ 的方向确定的一半空间内，如果 $p<0$，原点是在另一半空间内。
+$\mathbf{n} \cdot \mathbf{p}$ 是两向量的点积，并且 $q$ 是从原点到平面的距离。$q$ 的符号决定了原点是位于平面的哪一边。如果 $q>0$，原点是在 $\mathbf{n}$ 的方向确定的一半空间内，如果 $q<0$，原点是在另一半空间内。
 
 The [point-plane distance](https://mathworld.wolfram.com/Point-PlaneDistance.html) from a point $x_0$ to a plane (6) is given by the simple equation
 
 从一点 $x_0$ 到平面 (6) 的点-面距离由简单的方程给出
 
 $$
-D = \mathbf{n} \cdot x_0 + p    \tag{7}
+D = \mathbf{n} \cdot x_0 + q    \tag{7}
 $$
 
 If the point $x_0$ is in the half-space determined by the direction of $\mathbf{n}$, then $D>0$; if it is in the other half-space, then $D<0$.
