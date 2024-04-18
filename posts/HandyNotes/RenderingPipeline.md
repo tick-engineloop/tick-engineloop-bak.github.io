@@ -127,19 +127,27 @@ void glDepthRange(GLdouble nearVal​, GLdouble farVal​);
 
 void glDepthRangef(GLfloat nearVal​, GLfloat farVal​);
 ```
-当 $x=0, y=0$ 时，有 $x_{wnd} \in [0, width]$, $y_{wnd} \in [0, height]$。我们知道 $x_{ndc}$ 和 $y_{ndc}$ 都位于 [-1.0, 1.0] 区间内，可推导如下：
+
+当 $x=0, y=0$ 时，有 $x_{wnd} \in [0, width]$, $y_{wnd} \in [0, height]$。我们知道 $x_{ndc}$ 和 $y_{ndc}$ 都位于 [-1.0, 1.0] 区间内，可有如下推导：
+
 $$ 
 (x_{ndc} + 1), (y_{ndc} + 1) \in [0.0, 2.0]  
 $$
+
 继而：
+
 $$
 \frac{x_{ndc} + 1}{2}, \frac{y_{ndc} + 1}{2} \in [0.0, 1.0] \\
 $$
+
 进而：
+
 $$
 (\frac{x_{ndc} + 1}{2}) \cdot width \in [0.0, width], \ (\frac{y_{ndc} + 1}{2}) \cdot height \in [0.0, heght] \\
 $$
+
 当 $x$ 和 $y$ 都有值时，有
+
 $$
 (\frac{x_{ndc} + 1}{2}) \cdot width + x \in [x, x + width], \ (\frac{y_{ndc} + 1}{2}) \cdot height + y \in [y, y + heght] \\
 $$
