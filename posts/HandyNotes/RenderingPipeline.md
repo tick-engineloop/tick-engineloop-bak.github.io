@@ -106,17 +106,40 @@ z_{wnd} \\
 \\
 \frac{farVal - nearVal}{2}z_{ndc} + \frac{farVal + nearVal}{2}
 \end{pmatrix}
+=
+\begin{pmatrix}
+\frac{x_{ndc} + 1}{2} \cdot width + x \\
+\\
+\frac{y_{ndc} + 1}{2} \cdot height + y \\
+\\
+\frac{farVal - nearVal}{2}z_{ndc} + \frac{farVal + nearVal}{2}
+\end{pmatrix}
 $$
 
 在这里，$x$，$y$，$width$，$height$，$nearVal$，$farVal$ 是由下列视口定义函数的参数指定的：
 
 ```c
+// (x, y) Specify the lower left corner of the viewport rectangle, in pixels. The initial value is (0,0).
+// (width, height) Specify the width and height of the viewport.
 void glViewport(GLint x​, GLint y​, GLsizei width​, GLsizei height​);
 
 void glDepthRange(GLdouble nearVal​, GLdouble farVal​);
 
 void glDepthRangef(GLfloat nearVal​, GLfloat farVal​);
 ```
+我们知道 $x_{ndc}$ 和 $y_{ndc}$ 都位于 [-1.0, 1.0] 区间内，当 $x=0, y=0$ 时，有 $x_{wnd} \in [0, width]$, $y_{wnd} \in [0, height]$，推导如下：
+$$ 
+(x_{ndc} + 1), (y_{ndc} + 1) \in [0.0, 2.0]  \\
+\Downarrow \\
+\frac{x_{ndc} + 1}{2}, \frac{y_{ndc} + 1}{2} \in [0.0, 1.0] \\
+\Downarrow \\
+(\frac{x_{ndc} + 1}{2}) \cdot width \in [0.0, width], \ (\frac{y_{ndc} + 1}{2}) \cdot height \in [0.0, heght] \\
+$$
+当 $x$ 和 $y$ 都有值时，
+$$
+(\frac{x_{ndc} + 1}{2}) \cdot width + x \in [x, x + width], \ (\frac{y_{ndc} + 1}{2}) \cdot height + y \in [y, y + heght] \\
+$$
+
 ## Fragment Shader
 
 片段着色器是为光栅化产生的片段生成一组颜色和一个深度值的着色器阶段。
@@ -170,5 +193,7 @@ Vulkan 图形管线执行流程：
 > * [OpenGL Vertex Shader](https://www.khronos.org/opengl/wiki/Vertex_Shader)
 >
 > * [OpenGL Fragment Shader](https://www.khronos.org/opengl/wiki/Fragment_Shader)
+>
+> * [OpenGL® 4.5 Reference Pages](https://registry.khronos.org/OpenGL-Refpages/gl4/)
 
 [back](./)
