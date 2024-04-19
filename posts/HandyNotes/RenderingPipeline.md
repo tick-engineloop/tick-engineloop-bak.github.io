@@ -108,9 +108,9 @@ z_{wnd} \\
 \end{pmatrix}
 =
 \begin{pmatrix}
-\frac{x_{ndc} + 1}{2} \cdot width + x \\
+\frac{x_{ndc} + 1}{2} width + x \\
 \\
-\frac{y_{ndc} + 1}{2} \cdot height + y \\
+\frac{y_{ndc} + 1}{2} height + y \\
 \\
 \frac{farVal - nearVal}{2}z_{ndc} + \frac{farVal + nearVal}{2}
 \end{pmatrix}
@@ -143,13 +143,13 @@ $$
 进而：
 
 $$
-(\frac{x_{ndc} + 1}{2}) \cdot width \in [0.0, width], \ (\frac{y_{ndc} + 1}{2}) \cdot height \in [0.0, heght] \\
+(\frac{x_{ndc} + 1}{2}) width \in [0.0,\ width], \ (\frac{y_{ndc} + 1}{2}) height \in [0.0,\ heght] \\
 $$
 
 当 $x$ 和 $y$ 都有值时，有
 
 $$
-(\frac{x_{ndc} + 1}{2}) \cdot width + x \in [x, x + width], \ (\frac{y_{ndc} + 1}{2}) \cdot height + y \in [y, y + heght] \\
+(\frac{x_{ndc} + 1}{2}) width + x \ \in \ [x, x + width], \ (\frac{y_{ndc} + 1}{2}) height + y \ \in \ [y, y + heght] \\
 $$
 
 ## Fragment Shader

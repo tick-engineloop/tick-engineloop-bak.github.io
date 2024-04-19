@@ -48,29 +48,34 @@ $$
 q = \frac{d}{\sqrt{a^2+b^2+c^2}}    \tag{5}
 $$
 
-Then the Hessian normal form of the plane is
+as well as point $\mathbf{p}=(p_x,\ p_y,\ p_z)$ in the plane. Then the Hessian normal form of the plane is
 
-以及平面内的点 $\mathbf{p}=(p_x,\ p_y,\ p_z)$，然后平面的海森法线形式是
+以及平面内的点 $\mathbf{p}=(p_x,\ p_y,\ p_z)$。然后平面的海森法线形式是
 
 $$
 \mathbf{n} \cdot \mathbf{p} = -q    \tag{6}
 $$
 
-$\mathbf{n} \cdot \mathbf{p}$ is dot product of vectors, and $q$ is the distance of the plane from the origin. Here, the sign of $q$ determines the side of the plane on which the origin is located. If $q>0$, it is in the half-space determined by the direction of $\mathbf{n}$, and if $q<0$, it is in the other half-space.
+note that $\mathbf{n} \cdot \mathbf{p}$ is dot product of vectors, and $q$ is the distance of the plane from the origin. Here, the sign of $q$ determines the side of the plane on which the origin is located. If $q>0$, it is in the half-space determined by the direction of $\mathbf{n}$, and if $q<0$, it is in the other half-space.
 
-$\mathbf{n} \cdot \mathbf{p}$ 是两向量的点积，并且 $q$ 是从原点到平面的距离。$q$ 的符号决定了原点是位于平面的哪一边。如果 $q>0$，原点是在 $\mathbf{n}$ 的方向确定的一半空间内，如果 $q<0$，原点是在另一半空间内。
+注意 $\mathbf{n} \cdot \mathbf{p}$ 是两向量的点积，并且 $q$ 是从原点到平面的距离。$q$ 的符号决定了原点是位于平面的哪一边。如果 $q>0$，原点是在 $\mathbf{n}$ 的方向确定的一半空间内，如果 $q<0$，原点是在另一半空间内。
 
-The [point-plane distance](https://mathworld.wolfram.com/Point-PlaneDistance.html) from a point $x_0$ to a plane (6) is given by the simple equation
+The [point-plane distance](https://mathworld.wolfram.com/Point-PlaneDistance.html) from a point $\mathbf{p}_0$ to a plane (6) is given by the simple equation
 
-从一点 $x_0$ 到平面 (6) 的点-面距离由简单的方程给出
+从一点 $\mathbf{p}_0$ 到平面 (6) 的点-面距离由简单的方程给出
 
 $$
-D = \mathbf{n} \cdot x_0 + q    \tag{7}
+D = \mathbf{n} \cdot \mathbf{p}_0 + q    \tag{7}
 $$
 
-If the point $x_0$ is in the half-space determined by the direction of $\mathbf{n}$, then $D>0$; if it is in the other half-space, then $D<0$.
+If the point $\mathbf{p}_0$ is in the half-space determined by the direction of $\mathbf{n}$, then $D>0$; if it is in the other half-space, then $D<0$.
 
-如果点 $x_0$ 在 $\mathbf{n}$ 的方向确定的一半空间里，那么 $D>0$；如果它在另一半空间里，那么 $D<0$。
+如果点 $\mathbf{p}_0$ 在 $\mathbf{n}$ 的方向确定的一半空间里，那么 $D>0$；如果它在另一半空间里，那么 $D<0$。
+
+## 涉及的向量与矩阵知识点
+
+![Dot Product as Matrix-Matrix Multiplication](../../images/HessianNormalForm-1-DotProductasMatrixMatrixMultiplication.png)
+
 
 > ## References:
 >
