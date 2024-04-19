@@ -95,13 +95,13 @@ $$
 
 # Forword
 
-假设已知投影矩阵 $`\mathbf{M}_{projection}`$、视图矩阵 $`\mathbf{M}_{view}`$、模型矩阵 $`\mathbf{M}_{model}`$ 和局部空间坐标 $`\mathbf{V}_{local}`$，一个顶点坐标将会根据以下过程被变换到裁剪坐标：
+假设已知投影矩阵 $``\mathbf{M}_{projection}``$、视图矩阵 $``\mathbf{M}_{view}``$、模型矩阵 $``\mathbf{M}_{model}``$ 和局部空间坐标 $``\mathbf{V}_{local}``$，一个顶点坐标将会根据以下过程被变换到裁剪坐标：
 
 $$
 \mathbf{V}_{clip} = \mathbf{M}_{projection} \mathbf{M}_{view} \mathbf{M}_{model} \mathbf{V}_{local}
 $$
 
-注意矩阵运算不满足交换律，$`\mathbf{V}_{local}`$ 应依次和 $`\mathbf{M}_{model}`$、$`\mathbf{M}_{view}`$、$`\mathbf{M}_{projection}`$ 相乘。顶点着色器要求输出的所有顶点位置向量都是裁剪空间坐标，应该被赋值到顶点着色器中的 gl_Position，OpenGL将会自动进行裁剪、透视除法和视口变换。
+注意矩阵运算不满足交换律，$\mathbf{V}_{local}$ 应依次和 $\mathbf{M}_{model}$、$\mathbf{M}_{view}$、$\mathbf{M}_{projection}$ 相乘。顶点着色器要求输出的所有顶点位置向量都是裁剪空间坐标，应该被赋值到顶点着色器中的 gl_Position，OpenGL将会自动进行裁剪、透视除法和视口变换。
 
 # Backword
 
