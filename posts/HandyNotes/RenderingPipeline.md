@@ -108,9 +108,9 @@ z_{wnd} \\
 \end{pmatrix}
 =
 \begin{pmatrix}
-\frac{x_{ndc} + 1}{2} width + x \\
+x + \frac{x_{ndc} + 1}{2} width \\
 \\
-\frac{y_{ndc} + 1}{2} height + y \\
+y + \frac{y_{ndc} + 1}{2} height \\
 \\
 \frac{farVal - nearVal}{2}z_{ndc} + \frac{farVal + nearVal}{2}
 \end{pmatrix}
@@ -128,7 +128,7 @@ void glDepthRange(GLdouble nearVal​, GLdouble farVal​);
 void glDepthRangef(GLfloat nearVal​, GLfloat farVal​);
 ```
 
-当 $x=0, y=0$ 时，有 $x_{wnd} \in [0, width]$, $y_{wnd} \in [0, height]$。我们知道 $x_{ndc}$ 和 $y_{ndc}$ 都位于 [-1.0, 1.0] 区间内，可有如下推导：
+我们知道 $x_{ndc}$ 和 $y_{ndc}$ 都位于 [-1.0, 1.0] 区间内。当 $x=0$, $y=0$ 时，可有如下推导：
 
 $$ 
 (x_{ndc} + 1), (y_{ndc} + 1) \in [0.0, 2.0]  
@@ -146,11 +146,37 @@ $$
 (\frac{x_{ndc} + 1}{2}) width \in [0.0,\ width], \ (\frac{y_{ndc} + 1}{2}) height \in [0.0,\ heght] \\
 $$
 
-当 $x$ 和 $y$ 都有值时，有
+即有 $x_{wnd} \in [0, width]$，$y_{wnd} \in [0, height]$。当 $x$ 和 $y$ 都有值时：
 
 $$
-(\frac{x_{ndc} + 1}{2}) width + x \ \in \ [x, x + width], \ (\frac{y_{ndc} + 1}{2}) height + y \ \in \ [y, y + heght] \\
+x + (\frac{x_{ndc} + 1}{2}) width \ \in \ [x, x + width], \ y + (\frac{y_{ndc} + 1}{2}) height \ \in \ [y, y + heght] \\
 $$
+
+即有 $x_{wnd} \in [x, x + width]$，$y_{wnd} \in [y, y + heght]$。
+
+我们还知道 $z_{ndc}$ 也位于 [-1.0, 1.0] 区间内，当 $z_{ndc} = -1.0$ 时：
+
+$$
+\begin{aligned}
+z_{wnd} &= \frac{farVal - nearVal}{2}z_{ndc} + \frac{farVal + nearVal}{2}  \\
+        &= \frac{-farVal + nearVal}{2} + \frac{farVal + nearVal}{2} \\
+        &= \frac{-farVal}{2} + \frac{nearVal}{2} + \frac{farVal}{2} + \frac{nearVal}{2} \\
+        &= nearVal
+\end{aligned}
+$$
+
+当 $z_{ndc} = 1.0$ 时：
+
+$$
+\begin{aligned}
+z_{wnd} &= \frac{farVal - nearVal}{2}z_{ndc} + \frac{farVal + nearVal}{2}  \\
+        &= \frac{farVal - nearVal}{2} + \frac{farVal + nearVal}{2} \\
+        &= \frac{farVal}{2} - \frac{nearVal}{2} + \frac{farVal}{2} + \frac{nearVal}{2} \\
+        &= farVal
+\end{aligned}
+$$
+
+可知 $z_{wnd}$ 位于 [nearVal, farVal] 区间内。
 
 ## Fragment Shader
 
