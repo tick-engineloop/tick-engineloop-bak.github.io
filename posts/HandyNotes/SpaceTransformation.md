@@ -101,13 +101,13 @@ $$
 \mathbf{V}_{clip} = \mathbf{M}_{projection} \mathbf{M}_{view} \mathbf{M}_{model} \mathbf{V}_{local}
 $$
 
-注意矩阵运算不满足交换律，$\mathbf{V}_{local}$ 应依次和 $\mathbf{M}_{model}$、$\mathbf{M}_{view}$、$\mathbf{M}_{projection}$ 相乘。顶点着色器要求输出的所有顶点位置向量都是裁剪空间坐标，应该被赋值到顶点着色器中的 gl_Position，OpenGL将会自动进行裁剪、透视除法和视口变换。
+注意矩阵运算不满足交换律，$\mathbf{V_{\mathit{local}}}$ 应依次和 $\mathbf{M_{\mathit{model}}}$、$\mathbf{M_{\mathit{view}}}$、$\mathbf{M_{\mathit{projection}}}$ 相乘。顶点着色器要求输出的所有顶点位置向量都是裁剪空间坐标，应该被赋值到顶点着色器中的 gl_Position，OpenGL将会自动进行裁剪、透视除法和视口变换。
 
 # Backword
 
 ## 从 NDC 坐标转换为摄像机空间坐标
 
-因为齐次坐标在 $w$ 分量为 1.0 时，反映的是笛卡尔坐标位置。假设当 $w_{view}=1.0$ 时顶点在摄像机空间的坐标为 $\mathbf{V}_{view}=(x_{view}, \ y_{view}, \ z_{view}, \ w_{view})$。对应的在裁剪空间和 NDC 中的坐标分别为 $\mathbf{V}_{clip}=(x_{clip}, \ y_{clip}, \ z_{clip}, \ w_{clip})$ 和 $\mathbf{V}_{ndc}=(x_{ndc}, \ y_{ndc}, \ z_{ndc}, \ w_{ndc})$。摄像机空间坐标与 NDC 坐标关系为：
+因为齐次坐标在 $w$ 分量为 1.0 时，反映的是笛卡尔坐标位置。假设当 $w_{view}=1.0$ 时顶点在摄像机空间的坐标为 $\mathbf{V_{\mathit{view}}}=(x_{view}, \ y_{view}, \ z_{view}, \ w_{view})$。对应的在裁剪空间和 NDC 中的坐标分别为 $\mathbf{V_{\mathit{clip}}}=(x_{clip}, \ y_{clip}, \ z_{clip}, \ w_{clip})$ 和 $\mathbf{V_{\mathit{ndc}}}=(x_{ndc}, \ y_{ndc}, \ z_{ndc}, \ w_{ndc})$。摄像机空间坐标与 NDC 坐标关系为：
 
 $$
 \mathbf{V}_{ndc} = \frac{\mathbf{V}_{clip}}{w_{clip}} \tag{1}
@@ -117,19 +117,19 @@ $$
 \mathbf{V}_{clip} = \mathbf{M}_{projection} \mathbf{V}_{view} \tag{2}
 $$
 
-由式 (1) 可求得 $\mathbf{V}_{clip}$：
+由式 (1) 可得 $\mathbf{V_{\mathit{clip}}}$：
 
 $$
 \mathbf{V}_{clip} = w_{clip} \mathbf{V}_{ndc} \tag{3}
 $$
 
-由式 (2) 可求得 $\mathbf{V}_{view}$：
+由式 (2) 可得 $\mathbf{V_{\mathit{view}}}$：
 
 $$
 \mathbf{V}_{view} = \mathbf{M}_{projection}^{-1} \mathbf{V}_{clip} \tag{4}
 $$
 
-将式 (3) 代入式 (4) 可求得 $\mathbf{V}_{view}$：
+将式 (3) 代入式 (4) 可得：
 
 $$
 \mathbf{V}_{view} =  \mathbf{M}_{projection}^{-1} (w_{clip} \mathbf{V}_{ndc}) \tag{5}
@@ -145,7 +145,7 @@ w_{clip} \mathbf{M}_{projection}^{-1} \mathbf{V}_{ndc}
 w_{clip} \begin{pmatrix} x_{_{\mathbf{M}_{projection}^{-1} \mathbf{V}_{ndc}}} \\ \\  y_{_{\mathbf{M}_{projection}^{-1} \mathbf{V}_{ndc}}} \\ \\  z_{_{\mathbf{M}_{projection}^{-1} \mathbf{V}_{ndc}}} \\ \\ w_{_{\mathbf{M}_{projection}^{-1} \mathbf{V}_{ndc}}} \end{pmatrix} \tag{6}
 $$
 
-式 (6) 中只有 $w_{clip}$ 是未知的，$\mathbf{M}_{projection}$ 是从程序端传入着色器当中的投影变换矩阵，$\mathbf{V}_{ndc}$ 是待转换到摄像机空间的标准化设备坐标，$\mathbf{M}_{projection}$ 和 $\mathbf{V}_{ndc}$ 均是已知的。所以接下来让我们来求取 $w_{clip}$，这里对于式 (6) 我们可以只观察其中的 $w$ 分量：
+式 (6) 中只有 $w_{clip}$ 是未知的，$\mathbf{M_{\mathit{projection}}}$ 是从程序端传入着色器当中的投影变换矩阵，$\mathbf{V_{\mathit{ndc}}}$ 是待转换到摄像机空间的标准化设备坐标，$\mathbf{M_{\mathit{projection}}}$ 和 $\mathbf{V_{\mathit{ndc}}}$ 均是已知的。所以接下来让我们来求取 $w_{clip}$，这里对于式 (6) 我们可以只观察其中的 $w$ 分量：
 
 $$
 w_{view} =  w_{clip} \times w_{_{\mathbf{M}_{projection}^{-1} \mathbf{V}_{ndc}}} \tag{7}
@@ -163,7 +163,7 @@ $$
 w_{clip} = \frac{1.0}{w_{_{\mathbf{M}_{projection}^{-1} \mathbf{V}_{ndc}}}} \tag{9}
 $$
 
-将式 (9) 代入式 (6)，最终可求得 $\mathbf{V}_{view}$：
+将式 (9) 代入式 (6)，最终可求得 $\mathbf{V_{\mathit{view}}}$：
 
 $$
 \mathbf{V}_{view} 
@@ -178,7 +178,7 @@ done.
 
 ## 从 NDC 坐标转换为世界空间坐标
 
-和上面类似，假设当 $w_{world}=1.0$ 时顶点在世界空间的坐标为 $\mathbf{V}_{world}=(x_{world}, \ y_{world}, \ z_{world}, \ w_{world})$。对应的在裁剪空间和 NDC 中的坐标分别为 $\mathbf{V}_{clip}=(x_{clip}, \ y_{clip}, \ z_{clip}, \ w_{clip})$ 和 $\mathbf{V}_{ndc}=(x_{ndc}, \ y_{ndc}, \ z_{ndc}, \ w_{ndc})$。世界空间坐标与 NDC 坐标关系为：
+和上面类似，假设当 $w_{world}=1.0$ 时顶点在世界空间的坐标为 $\mathbf{V_{\mathit{world}}}=(x_{world}, \ y_{world}, \ z_{world}, \ w_{world})$。对应的在裁剪空间和 NDC 中的坐标分别为 $\mathbf{V_{\mathit{clip}}}=(x_{clip}, \ y_{clip}, \ z_{clip}, \ w_{clip})$ 和 $\mathbf{V_{\mathit{ndc}}}=(x_{ndc}, \ y_{ndc}, \ z_{ndc}, \ w_{ndc})$。世界空间坐标与 NDC 坐标关系为：
 
 $$
 \mathbf{V}_{ndc} = \frac{\mathbf{V}_{clip}}{w_{clip}} \tag{1}
@@ -188,19 +188,19 @@ $$
 \mathbf{V}_{clip} = \mathbf{M}_{projection} \mathbf{M}_{view} \mathbf{V}_{world} \tag{2}
 $$
 
-由式 (1) 可求得 $\mathbf{V}_{clip}$：
+由式 (1) 可得 $\mathbf{V_{\mathit{clip}}}$：
 
 $$
 \mathbf{V}_{clip} = w_{clip} \mathbf{V}_{ndc} \tag{3}
 $$
 
-由式 (2) 可求得 $\mathbf{V}_{world}$：
+由式 (2) 可得 $\mathbf{V_{\mathit{world}}}$：
 
 $$
 \mathbf{V}_{world} = (\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{clip} \tag{4}
 $$
 
-将式 (3) 代入式 (4) 可求得 $\mathbf{V}_{world}$：
+将式 (3) 代入式 (4) 可得：
 
 $$
 \mathbf{V}_{world} =  (\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} (w_{clip} \mathbf{V}_{ndc}) \tag{5}
@@ -216,7 +216,7 @@ w_{clip} (\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}
 w_{clip} \begin{pmatrix} x_{_{(\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}}} \\ \\  y_{_{(\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}}} \\ \\  z_{_{(\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}}} \\ \\ w_{_{(\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}}} \end{pmatrix} \tag{6}
 $$
 
-式 (6) 中只有 $w_{clip}$ 是未知的，$\mathbf{M}_{projection}$ 和 $\mathbf{M}_{view}$ 是从程序端传入着色器当中的投影变换矩阵，$\mathbf{V}_{ndc}$ 是待转换到世界空间的标准化设备坐标，它们均是已知的。所以接下来让我们来求取 $w_{clip}$，这里对于式 (6) 我们可以只观察其中的 $w$ 分量：
+式 (6) 中只有 $w_{clip}$ 是未知的，$\mathbf{M_{\mathit{projection}}}$ 和 $\mathbf{M_{\mathit{view}}}$ 是从程序端传入着色器当中的投影变换矩阵，$\mathbf{V_{\mathit{ndc}}}$ 是待转换到世界空间的标准化设备坐标，它们均是已知的。所以接下来让我们来求取 $w_{clip}$，这里对于式 (6) 我们可以只观察其中的 $w$ 分量：
 
 $$
 w_{world} =  w_{clip} \times w_{_{(\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}}} \tag{7}
@@ -234,7 +234,7 @@ $$
 w_{clip} = \frac{1.0}{w_{_{(\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}}}} \tag{9}
 $$
 
-将式 (9) 代入式 (6)，最终可求得 $\mathbf{V}_{world}$：
+将式 (9) 代入式 (6)，最终可求得 $\mathbf{V_{\mathit{world}}}$：
 
 $$
 \mathbf{V}_{world} 
