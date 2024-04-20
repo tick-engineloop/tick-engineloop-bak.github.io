@@ -95,7 +95,7 @@ $$
 
 # Forword
 
-假设已知投影矩阵 $\mathbf{M}_{projection}$、视图矩阵 $\mathbf{M}_{view}$、模型矩阵 $\mathbf{M}_{model}$ 和局部空间坐标 $\mathbf{V}_{local}$，一个顶点坐标将会根据以下过程被变换到裁剪坐标：
+假设已知投影矩阵 $\mathbf{M_{\mathit{projection}}}$、视图矩阵 $\mathbf{M_{\mathit{view}}}$、模型矩阵 $\mathbf{M_{\mathit{model}}}$ 和局部空间坐标 $\mathbf{V_{\mathit{local}}}$，一个顶点坐标将会根据以下过程被变换到裁剪坐标：
 
 $$
 \mathbf{V}_{clip} = \mathbf{M}_{projection} \mathbf{M}_{view} \mathbf{M}_{model} \mathbf{V}_{local}
