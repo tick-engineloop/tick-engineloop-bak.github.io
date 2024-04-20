@@ -64,7 +64,7 @@ $$
 > * [The Normal Matrix --- lighthouse3d](http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/)
 >
 > * [The Matrix --- immersivemath](https://immersivemath.com/ila/ch06_matrices/ch06.html)
-
+>
 > * 4.5 法向量变换 --- 《3D游戏与计算机图形学中的数学方法》
 
 

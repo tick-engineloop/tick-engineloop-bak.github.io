@@ -14,4 +14,6 @@ description: 随手记录一些知识点以备查
 
 # [Hessian Normal Form](./HessianNormalForm.md)
 
+# [Linearization of nonlinear depth values in screen space](./LinearizationOfNonlinearDepthValuesInScreenSpace.md)
+
 [back](./../../)
