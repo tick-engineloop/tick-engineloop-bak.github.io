@@ -216,7 +216,7 @@ w_{clip} (\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}
 w_{clip} \begin{pmatrix} x_{_{(\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}}} \\ \\  y_{_{(\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}}} \\ \\  z_{_{(\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}}} \\ \\ w_{_{(\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}}} \end{pmatrix} \tag{6}
 $$
 
-式 (6) 中只有 $w_{clip}$ 是未知的，$\mathbf{M_{\mathit{projection}}}$ 和 $\mathbf{M_{\mathit{view}}}$ 是从程序端传入着色器当中的投影变换矩阵，$\mathbf{V_{\mathit{ndc}}}$ 是待转换到世界空间的标准化设备坐标，它们均是已知的。所以接下来让我们来求取 $w_{clip}$，这里对于式 (6) 我们可以只观察其中的 $w$ 分量：
+式 (6) 中只有 $w_{clip}$ 是未知的，$\mathbf{M_{\mathit{projection}}}$ 和 $\mathbf{M_{\mathit{view}}}$ 是从程序端传入着色器当中的投影变换矩阵和视图矩阵，$\mathbf{V_{\mathit{ndc}}}$ 是待转换到世界空间的标准化设备坐标，它们均是已知的。所以接下来让我们来求取 $w_{clip}$，这里对于式 (6) 我们可以只观察其中的 $w$ 分量：
 
 $$
 w_{world} =  w_{clip} \times w_{_{(\mathbf{M}_{projection} \mathbf{M}_{view})^{-1} \mathbf{V}_{ndc}}} \tag{7}
