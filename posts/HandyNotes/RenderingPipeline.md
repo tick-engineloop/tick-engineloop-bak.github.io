@@ -88,6 +88,8 @@ z_{ndc} \\
 \end{pmatrix}
 $$
 
+经过透视除法后归一化设备坐标分量 $x_{ndc}$、$y_{ndc}$ 和 $z_{ndc}$ 都位于 [-1.0, 1.0] 区间内。
+
 ### Viewport transform
 
 视口变换定义了顶点位置从 NDC 空间到窗口空间的变换。给定视口参数，我们可以通过下面的方程计算窗口空间坐标：
@@ -119,10 +121,14 @@ $$
 在这里，$x$，$y$，$width$，$height$，$nearVal$，$farVal$ 是由下列视口定义函数的参数指定的：
 
 ```c
+// set the viewport
 // (x, y) Specify the lower left corner of the viewport rectangle, in pixels. The initial value is (0,0).
 // (width, height) Specify the width and height of the viewport.
 void glViewport(GLint x​, GLint y​, GLsizei width​, GLsizei height​);
 
+// specify mapping of depth values from normalized device coordinates to window coordinates
+// nearVal​ Specifies the mapping of the near clipping plane to window coordinates. The initial value is 0.
+// farVal​ Specifies the mapping of the far clipping plane to window coordinates. The initial value is 1.
 void glDepthRange(GLdouble nearVal​, GLdouble farVal​);
 
 void glDepthRangef(GLfloat nearVal​, GLfloat farVal​);
