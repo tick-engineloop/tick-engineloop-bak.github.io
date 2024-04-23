@@ -95,13 +95,15 @@ $$
 
 # Forword
 
+我们的顶点坐标起始于局部空间(Local Space)，在这里它被称为局部坐标(Local Coordinate)，它在之后会变为世界坐标(World Coordinate)，观察坐标(View Coordinate)，裁剪坐标(Clip Coordinate)，标准化设备坐标(NDC)，并最后以屏幕坐标(Screen Coordinate)的形式结束。
+
 假设已知投影矩阵 $\mathbf{M_{\mathit{projection}}}$、视图矩阵 $\mathbf{M_{\mathit{view}}}$、模型矩阵 $\mathbf{M_{\mathit{model}}}$ 和局部空间坐标 $\mathbf{V_{\mathit{local}}}$，一个顶点坐标将会根据以下过程被变换到裁剪坐标：
 
 $$
 \mathbf{V}_{clip} = \mathbf{M}_{projection} \mathbf{M}_{view} \mathbf{M}_{model} \mathbf{V}_{local}
 $$
 
-注意矩阵运算不满足交换律，$\mathbf{V_{\mathit{local}}}$ 应依次和 $\mathbf{M_{\mathit{model}}}$、$\mathbf{M_{\mathit{view}}}$、$\mathbf{M_{\mathit{projection}}}$ 相乘。顶点着色器要求输出的所有顶点位置向量都是裁剪空间坐标，应该被赋值到顶点着色器中的 gl_Position，OpenGL将会自动进行裁剪、透视除法和视口变换。
+注意矩阵运算不满足交换律，$\mathbf{V_{\mathit{local}}}$ 应依次和 $\mathbf{M_{\mathit{model}}}$、$\mathbf{M_{\mathit{view}}}$、$\mathbf{M_{\mathit{projection}}}$ 相乘。顶点着色器要求输出的所有顶点位置向量都是裁剪空间坐标，应该被赋值到顶点着色器中的 gl_Position。OpenGL将会自动进行裁剪、透视除法和视口变换，执行透视除法操作后裁剪坐标变为标准化设备坐标，再执行视口变换操作后标准化设备坐标变为屏幕坐标。
 
 # Backword
 
