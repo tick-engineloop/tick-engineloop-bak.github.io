@@ -97,4 +97,4 @@ sudo v2raya
 
 ![select a scenario mode](../../images/v2rayA-SwitchyOmega-2-selectScenarioMode.png)
 
-[back](./../../)
+[back](./../)
