@@ -224,7 +224,7 @@ Each of the kernel samples will be used to offset the view-space fragment positi
 
 By introducing some randomness onto the sample kernels we largely reduce the number of samples necessary to get good results. We could create a random rotation vector for each fragment of a scene, but that quickly eats up memory. It makes more sense to create a small texture of random rotation vectors that we tile over the screen.
 
-通过在样本核上引入一些随机性，我们可以在很大程度上减少获得良好结果所需的样本数量。我们可以为场景的每个片段创建一个随机旋转向量，但这很快就会吃光内存。创建一小块随机旋转矢量纹理，并将其平铺在屏幕上更有意义。
+通过在样本核上引入一些随机性，我们可以在很大程度上减少获得良好结果所需的样本数量。我们可以为场景的每个片段创建一个随机旋转向量，但这很快就会吃光内存。创建一小块随机旋转矢量纹理，并将其（以瓦片的形式重复地）平铺在屏幕上更有意义。
 
 We create a 4x4 array of random rotation vectors oriented around the tangent-space surface normal:
 
@@ -248,7 +248,7 @@ As the sample kernel is oriented along the positive z direction in tangent space
 
 We then create a 4x4 texture that holds the random rotation vectors; make sure to set its wrapping method to GL_REPEAT so it properly tiles over the screen.
 
-然后，我们创建一个 4x4 纹理来保存随机旋转向量；确保将其环绕方式设置为 GL_REPEAT，以便它正确地平铺在屏幕上。
+然后，我们创建一个 4x4 纹理来保存随机旋转向量；确保将其环绕方式设置为 GL_REPEAT，以便它正确地平铺在屏幕上（将一个 4x4 纹理瓦片重复地铺满整个屏幕）。
 
 ```c++
 unsigned int noiseTexture; 
@@ -353,7 +353,7 @@ void main()
 
 Interesting to note here is the noiseScale variable. We want to tile the noise texture all over the screen, but as the TexCoords vary between 0.0 and 1.0, the texNoise texture won't tile at all. So we'll calculate the required amount to scale TexCoords by dividing the screen's dimensions by the noise texture size.
 
-这里需要注意的是 noiseScale 变量。我们想在整个屏幕上铺满之前创建的 4x4 噪声纹理，但由于 TexCoords 在 0.0 和 1.0 之间变化，texNoise 纹理根本不会按这样的预想方式平铺。因此，我们通过将屏幕的尺寸除以噪声纹理尺寸来计算所需的 TexCoords 缩放量。
+这里需要注意的是 noiseScale 变量。我们想在整个屏幕上铺满之前创建的 4x4 噪声纹理瓦片，但由于 TexCoords 在 0.0 和 1.0 之间变化，texNoise 纹理根本不会被按这样的预想方式平铺。因此，我们通过将屏幕的尺寸除以噪声纹理尺寸来计算所需的 TexCoords 缩放量。
 
 ```glsl
 vec3 fragPos   = texture(gPosition, TexCoords).xyz;
@@ -425,5 +425,208 @@ occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0);
 Note that we add a small bias here to the original fragment's depth value (set to 0.025 in this example). A bias isn't always necessary, but it helps visually tweak the SSAO effect and solves acne effects that may occur based on the scene's complexity.
 
 请注意，我们在原始片段的深度值中添加了一个小小的 bias 值（在此示例中设置为 0.025 ）。偏置并不总是必要的，但它有助于在视觉上调整 SSAO 效果，并解决根据场景复杂度可能发生的失真效果。
+
+We're not completely finished yet as there is still a small issue we have to take into account. Whenever a fragment is tested for ambient occlusion that is aligned close to the edge of a surface, it will also consider depth values of surfaces far behind the test surface; these values will (incorrectly) contribute to the occlusion factor. We can solve this by introducing a range check as the following image (courtesy of John Chapman) illustrates:
+
+我们还没有完全完成，因为还有一个小问题我们必须考虑。每当为环境光遮蔽测试靠近表面边缘的片段时，它还会将远在测试表面后面的表面的深度值考虑在内（以下面左侧图片为例说明，这会导致佛像边缘和后面墙壁间产生环境光遮蔽效果，但其实佛像和后面墙壁距离还很远，它们之间没有这么明显的影响）;这些值将（错误地）影响遮挡因子。我们可以通过引入范围检查来解决这个问题，如下图所示（由 John Chapman 提供）：
+
+<p align="center">
+  <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-RangeCheck.png">
+</p>
+
+We introduce a range check that makes sure a fragment contributes to the occlusion factor if its depth values is within the sample's radius. We change the last line to:
+
+我们引入了一个范围检查，以确保如果片段的深度值是在样本的半径范围内，则片段对遮挡因子有贡献。我们将最后一行更改为：
+
+```glsl
+float rangeCheck = smoothstep(0.0, 1.0, radius / abs(fragPos.z - sampleDepth));
+occlusion       += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0) * rangeCheck;
+```
+
+Here we used GLSL's smoothstep function that smoothly interpolates its third parameter between the first and second parameter's range, returning 0.0 if less than or equal to its first parameter and 1.0 if equal or higher to its second parameter. If the depth difference ends up between radius, its value gets smoothly interpolated between 0.0 and 1.0 by the following curve:
+
+在这里，我们使用了 GLSL 的 smoothstep 函数，该函数根据其第三个参数在第一个和第二个参数之间平滑地插值，如果小于或等于其第一个参数返回 0.0，如果等于或大于其第二个参数返回 1.0。如果深度差最终在 radius 之内，则其值将按照以下曲线在 0.0 和 1.0 之间平滑插值：
+
+<p align="center">
+  <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-Smoothstep.png">
+</p>
+
+If we were to use a hard cut-off range check that would abruptly remove occlusion contributions if the depth values are outside radius, we'd see obvious (unattractive) borders at where the range check is applied.
+
+如果我们要使用硬截断范围检查，当深度值在半径之外时，将突然移除遮挡贡献，我们会在应用范围检查的地方看到明显的（令人不愉快的）边界。
+
+As a final step we normalize the occlusion contribution by the size of the kernel and output the results. Note that we subtract the occlusion factor from 1.0 so we can directly use the occlusion factor to scale the ambient lighting component.
+
+最后一步，我们使用核的大小对遮挡贡献进行归一化，并输出结果。请注意，我们从 1.0 中减去遮挡因子，以便我们可以直接使用遮挡因子来缩放环境光照项。
+
+```glsl
+occlusion = 1.0 - (occlusion / kernelSize);
+FragColor = occlusion;
+```
+
+If we'd imagine a scene where our favorite backpack model is taking a little nap, the ambient occlusion shader produces the following texture:
+
+如果我们想象一个静置背包的场景，环境光遮蔽着色器会生成下面的纹理：
+
+<p align="center">
+  <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-WithoutBlur.png">
+</p>
+
+As we can see, ambient occlusion gives a great sense of depth. With just the ambient occlusion texture we can already clearly see the model is indeed laying on the floor, instead of hovering slightly above it.
+
+正如我们所看到的，环境光遮蔽给人一种很好的深度感。仅通过环境光遮蔽纹理，我们已经可以清楚地看到模型确实躺在地板上，而不是轻轻漂浮在地板上。
+
+It still doesn't look perfect, as the repeating pattern of the noise texture is clearly visible. To create a smooth ambient occlusion result we need to blur the ambient occlusion texture.
+
+这看起来仍不完美，因为使用重复噪声纹理的模式，不平滑的遮蔽效果清晰可见。为了创建平滑的环境光遮蔽结果，我们需要环境光遮蔽纹理进行模糊。
+
+# Ambient occlusion blur
+
+Between the SSAO pass and the lighting pass, we first want to blur the SSAO texture. So let's create yet another framebuffer object for storing the blur result:
+在 SSAO 通道和 lighting 通道之间，我们还要对 SSAO 纹理进行模糊。因此，让我们创建另一个用于存储模糊结果的帧缓冲对象：
+
+```c++
+unsigned int ssaoBlurFBO, ssaoColorBufferBlur;
+glGenFramebuffers(1, &ssaoBlurFBO);
+glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
+glGenTextures(1, &ssaoColorBufferBlur);
+glBindTexture(GL_TEXTURE_2D, ssaoColorBufferBlur);
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, SCR_WIDTH, SCR_HEIGHT, 0, GL_RED, GL_FLOAT, NULL);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBufferBlur, 0);
+```
+
+Because the tiled random vector texture gives us a consistent randomness, we can use this property to our advantage to create a simple blur shader:
+
+由于平铺的是随机矢量纹理瓦片，这为我们提供了一致的随机性，因此我们可以利用此属性来创建简单的模糊着色器：
+
+```glsl
+#version 330 core
+out float FragColor;
+  
+in vec2 TexCoords;
+  
+uniform sampler2D ssaoInput;
+
+void main() {
+    //---------------------------------------------------------------
+    // textureSize — retrieve the dimensions of a level of a texture
+    //---------------------------------------------------------------
+    vec2 texelSize = 1.0 / vec2(textureSize(ssaoInput, 0)); 
+    float result = 0.0;
+    for (int x = -2; x < 2; ++x) 
+    {
+        for (int y = -2; y < 2; ++y) 
+        {
+            vec2 offset = vec2(float(x), float(y)) * texelSize;
+            result += texture(ssaoInput, TexCoords + offset).r;
+        }
+    }
+    FragColor = result / (4.0 * 4.0);
+}  
+```
+
+Here we traverse the surrounding SSAO texels between -2.0 and 2.0, sampling the SSAO texture an amount identical to the noise texture's dimensions. We offset each texture coordinate by the exact size of a single texel using textureSize that returns a vec2 of the given texture's dimensions. We average the obtained results to get a simple, but effective blur:
+
+这里，我们在 -2.0 和 2.0 之间遍历周围的 SSAO 纹素，采样 SSAO 纹理次数与噪声纹理的规模相同。我们使用 textureSize 将每个纹理坐标偏移单个纹素大小的确切倍数，textureSize 返回给定纹理的一个 vec2 类型尺寸。我们对获得的结果进行平均，以获得简单但有效的模糊：
+
+<p align="center">
+  <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-WithBlur.png">
+</p>
+
+And there we go, a texture with per-fragment ambient occlusion data; ready for use in the lighting pass.
+
+这就是我们继续往下进行，准备在 lighting 通道中使用，包含了每个片段的环境光遮蔽数据的纹理。
+
+# Applying ambient occlusion
+
+Applying the occlusion factors to the lighting equation is incredibly easy: all we have to do is multiply the per-fragment ambient occlusion factor to the lighting's ambient component and we're done. If we take the Blinn-Phong deferred lighting shader of the previous chapter and adjust it a bit, we get the following fragment shader:
+
+将遮挡因子应用于光照方程非常容易：我们所要做的就是将每个片段的环境光遮蔽因子乘以光照的环境分量，然后就完成了。如果我们采用上一章的 Blinn-Phong 延迟光照着色器并对其进行一些调整，我们将得到以下片段着色器：
+
+```glsl
+#version 330 core
+out vec4 FragColor;
+  
+in vec2 TexCoords;
+
+uniform sampler2D gPosition;
+uniform sampler2D gNormal;
+uniform sampler2D gAlbedo;
+uniform sampler2D ssao;
+
+struct Light {
+    vec3 Position;
+    vec3 Color;
+    
+    float Linear;
+    float Quadratic;
+    float Radius;
+};
+uniform Light light;
+
+void main()
+{             
+    // retrieve data from gbuffer
+    vec3 FragPos = texture(gPosition, TexCoords).rgb;
+    vec3 Normal = texture(gNormal, TexCoords).rgb;
+    vec3 Diffuse = texture(gAlbedo, TexCoords).rgb;
+    float AmbientOcclusion = texture(ssao, TexCoords).r;
+    
+    // blinn-phong (in view-space)
+    vec3 ambient = vec3(0.3 * Diffuse * AmbientOcclusion); // here we add occlusion factor
+    vec3 lighting  = ambient; 
+    vec3 viewDir  = normalize(-FragPos); // viewpos is (0.0.0) in view-space
+    // diffuse
+    vec3 lightDir = normalize(light.Position - FragPos);
+    vec3 diffuse = max(dot(Normal, lightDir), 0.0) * Diffuse * light.Color;
+    // specular
+    vec3 halfwayDir = normalize(lightDir + viewDir);  
+    float spec = pow(max(dot(Normal, halfwayDir), 0.0), 8.0);
+    vec3 specular = light.Color * spec;
+    // attenuation
+    float dist = length(light.Position - FragPos);
+    float attenuation = 1.0 / (1.0 + light.Linear * dist + light.Quadratic * dist * dist);
+    diffuse  *= attenuation;
+    specular *= attenuation;
+    lighting += diffuse + specular;
+
+    FragColor = vec4(lighting, 1.0);
+}
+```
+
+The only thing (aside from the change to view-space) we really changed is the multiplication of the scene's ambient component by AmbientOcclusion. With a single blue-ish point light in the scene we'd get the following result:
+
+我们唯一真正改变的（除了对观察空间的更改）是场景的环境分量现在乘以了 AmbientOcclusion。在场景中使用单个蓝色点光源时，我们将得到以下结果：
+
+<p align="center">
+  <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-Final.png">
+</p>
+
+You can find the full source code of the demo scene [here]().
+
+您可以在此处找到示例场景的完整源代码。
+
+Screen-space ambient occlusion is a highly customizable effect that relies heavily on tweaking its parameters based on the type of scene. There is no perfect combination of parameters for every type of scene. Some scenes only work with a small radius, while other scenes require a larger radius and a larger sample count for them to look realistic. The current demo uses 64 samples, which is a bit much; play around with a smaller kernel size and try to get good results.
+
+屏幕空间环境光遮蔽是一种可高度自定义的效果，它在很大程度上依赖于根据场景类型而进行的参数调整。对于每种类型的场景，没有完美的参数组合。一些场景仅在小半径时才表现的好，而另一些场景需要更大的半径和更大的样本数才能使它们看起来逼真。当前的示例使用了 64 个样本，这有点多;感兴趣的话可以尝试使用较小的核大小来获得好的结果。
+
+Some parameters you can tweak (by using uniforms for example): kernel size, radius, bias, and/or the size of the noise kernel. You can also raise the final occlusion value to a user-defined power to increase its strength:
+
+你可以调整一些参数（例如，通过使用 uniforms 设置 shader 中的参数值）：核大小、半径、偏置、和/或噪声核的大小。你还可以将最终遮挡值提升到用户定义的幂上，以增加其强度：
+
+```glsl
+occlusion = 1.0 - (occlusion / kernelSize);       
+FragColor = pow(occlusion, power);
+```
+
+Play around with different scenes and different parameters to appreciate the customizability of SSAO.
+
+尝试不同的场景和不同的参数，以欣赏 SSAO 的可定制性。
+
+Even though SSAO is a subtle effect that isn't too clearly noticeable, it adds a great deal of realism to properly lit scenes and is definitely a technique you'd want to have in your toolkit.
+
+尽管 SSAO 是一种不太明显的细微效果，但它为有适当光照的场景增加了大量的真实感，绝对是你希望塞进工具包中的一种技术。
 
 [back](./../)
