@@ -8,11 +8,11 @@ description: screen-space ambient occlusion
 
 We've briefly touched the topic in the basic lighting chapter: ambient lighting. Ambient lighting is a fixed light constant we add to the overall lighting of a scene to simulate the scattering of light. In reality, light scatters in all kinds of directions with varying intensities so the indirectly lit parts of a scene should also have varying intensities. One type of indirect lighting approximation is called ambient occlusion that tries to approximate indirect lighting by darkening creases, holes, and surfaces that are close to each other. These areas are largely occluded by surrounding geometry and thus light rays have fewer places to escape to, hence the areas appear darker. Take a look at the corners and creases of your room to see that the light there seems just a little darker.
 
-我们已经在前面的基础教程中简单介绍到了这部分内容：环境光照。环境光照是我们加入场景总体光照中的一个固定光照常量，以模拟光的散射。在现实中，光线以不同的强度向各种方向散射，所以场景的间接光照部分也应该具有不同的强度。环境光遮蔽(Ambient Occlusion)是间接光照的一种近似，它试图通过使折缝、孔洞和彼此靠近的表面变暗来近似间接光照。这些区域在很大程度上被周围的几何形状遮挡，因此光线能去逃逸的地方较少，所以这些地方看起来会更暗一些。看看你房间的拐角或皱褶，这些地方看起来会有一点暗。
+我们已经在前面的基础教程中简单介绍到了这部分内容：环境光照。环境光照是我们加入场景总体光照中的一个固定光照常量，以模拟光的散射。在现实中，光线以不同的强度向各个方向散射，所以场景的间接光照部分也应该具有不同的强度。环境光遮蔽(Ambient Occlusion)是间接光照的一种近似，它试图通过使折缝、孔洞和彼此靠近的表面变暗来近似间接光照。这些区域在很大程度上被周围的几何形状遮挡，因此光线能去逃逸的地方较少，所以这些地方看起来会更暗一些。看看你房间的拐角或皱褶处，这些地方看起来会更暗一点。
 
 Below is an example image of a scene with and without ambient occlusion. Notice how especially between the creases, the (ambient) light is more occluded:
 
-下面是有和没有环境光遮蔽的场景的示例图像。请注意，尤其是在皱褶之间，（环境）光被遮挡得更多：
+下面是有和没有环境光遮蔽的场景示例图。请注意，尤其是在拐角处，（环境）光被遮挡得更多：
 
 <p align="center">
   <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-Example.png">
@@ -24,23 +24,29 @@ While not an incredibly obvious effect, the image with ambient occlusion enabled
 
 Ambient occlusion techniques are expensive as they have to take surrounding geometry into account. One could shoot a large number of rays for each point in space to determine its amount of occlusion, but that quickly becomes computationally infeasible for real-time solutions. In 2007, Crytek published a technique called screen-space ambient occlusion (SSAO) for use in their title Crysis. The technique uses a scene's depth buffer in screen-space to determine the amount of occlusion instead of real geometrical data. This approach is incredibly fast compared to real ambient occlusion and gives plausible results, making it the de-facto standard for approximating real-time ambient occlusion.
 
-环境光遮蔽技术成本高昂，因为它必须将周围的几何形状考虑在内。人们可以为空间中的每个点发射大量光线来确定其遮挡量，但对于实时方案来说，这种方法在计算上很快就变得不可行了。2007 年，Crytek 发布了一种称为屏幕空间环境光遮蔽 （SSAO） 的技术，并用在了他们的看家作《孤岛危机》上。该技术使用屏幕空间中场景的深度缓冲区来确定遮挡量，而不是实际的几何数据。与真正的环境光遮蔽相比，这种方法的速度非常快，并且给出了貌似真实的结果，使其在当时成为近似实时环境光遮蔽的事实标准。
+环境光遮蔽技术成本高昂，因为它必须将周围的几何形状考虑在内。人们可以为空间中的每个点发射大量光线来确定其遮挡量，但对于实时方案来说，这种方法在计算上很快就变得不可行了。2007 年，Crytek 发布了一种称为屏幕空间环境光遮蔽 （SSAO） 的技术，并用在了他们的看家作《孤岛危机》上。该技术使用屏幕空间中场景的深度缓冲区来确定遮挡量，而不是实际的几何数据。与真正的环境光遮蔽相比，这种方法的速度非常快，并且给出了貌似真实的结果，使其在当时事实上成为了近似实时环境光遮蔽的标准。
 
 The basics behind screen-space ambient occlusion are simple: for each fragment on a screen-filled quad we calculate an occlusion factor based on the fragment's surrounding depth values. The occlusion factor is then used to reduce or nullify the fragment's ambient lighting component. The occlusion factor is obtained by taking multiple depth samples in a sphere sample kernel surrounding the fragment position and compare each of the samples with the current fragment's depth value. The number of samples that have a higher depth value than the fragment's depth represents the occlusion factor.
 
-屏幕空间环境光遮蔽背后的基本原理很简单：对于填充屏幕的四边形上的每个片段，我们根据片段周围的深度值计算一个遮挡因子。然后使用这个遮挡因子来减少或消除片段的环境光照分量。遮挡因子是通过在片段位置周围的球形样本核中获取多个深度样本，并将每个样本与当前片段的深度值进行比较来获得的。相比于片段深度，具有更高深度值的样本的个数代表遮挡因子。
+屏幕空间环境光遮蔽背后的基本原理很简单：对于填充屏幕的四边形上的每个片段，我们根据片段周围的深度值计算一个遮挡因子。然后使用这个遮挡因子来减少或消除片段的环境光照分量。遮挡因子是通过在片段位置周围的球形样本核中获取多个深度样本，并将每个样本与当前片段的深度值进行比较来获得的。将样本深度和片段深度相比较，具有更高深度值的样本的个数即就是遮挡因子。
 
 <p align="center">
   <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-CrysisCircle.png">
+  <p align="center" class="caption"> 
+    <font size=1>
+      黑色点是当前正在进行遮蔽效果计算的片段，白色样本是对观察者可见的样本，灰色样本是对观察者不可见的样本 <br />
+      白色样本越多说明片段周围越空旷；黑色样本越多说明片段周围遮挡越多
+    </font> 
+  </p>
 </p>
 
 Each of the gray depth samples that are inside geometry contribute to the total occlusion factor; the more samples we find inside geometry, the less ambient lighting the fragment should eventually receive.
 
-几何体内部的每个灰色深度样本都对总遮挡因子有贡献;我们在几何体内发现的灰色样本越多，片段最终接收到的环境光就越少。
+上图中，几何体内部的每个灰色深度样本都对总遮挡因子有贡献；我们在几何体内发现的灰色样本越多，片段最终接收到的环境光就越少。
 
 It is clear the quality and precision of the effect directly relates to the number of surrounding samples we take. If the sample count is too low, the precision drastically reduces and we get an artifact called banding; if it is too high, we lose performance. We can reduce the amount of samples we have to test by introducing some randomness into the sample kernel. By randomly rotating the sample kernel each fragment we can get high quality results with a much smaller amount of samples. This does come at a price as the randomness introduces a noticeable noise pattern that we'll have to fix by blurring the results. Below is an image (courtesy of John Chapman) showcasing the banding effect and the effect randomness has on the results:
 
-很明显，效果的质量和精度与我们采集的周围样本数量直接相关。如果样本数量太低，精度会大大降低，画面上会呈现出一种称为条带的加工痕迹;如果它太高，反而会损失性能。我们可以通过在样本核中引入一些随机性来减少必须测试的样本数量。通过随机旋转每个片段的样本核，我们可以用更少的样本获得高质量的结果。这确实是有代价的，因为随机性引入了明显的噪声图案，我们必须通过对结果进行模糊来进一步修复。下面是一张图片（由John Chapman提供），展示了条带效果以及随机性对结果的影响：
+很明显，效果的质量和精度与我们采集的周围样本数量直接相关。如果样本数量太少，精度会大大降低，画面上会呈现出一种称为条带的加工痕迹；如果它太多，则会损失一定的性能。我们可以通过在样本核中引入一些随机性来减少必须测试的样本数量。通过随机旋转每个片段的样本核，我们可以用更少的样本获得高质量的结果。这确实是有代价的，因为随机性引入了明显的噪声图案，我们必须通过对结果进行模糊来进一步修复。下面是一张图片（由John Chapman提供），展示了条带效果以及随机性对结果的影响：
 
 <p align="center">
   <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-BandingNoise.jpg">
@@ -48,11 +54,11 @@ It is clear the quality and precision of the effect directly relates to the numb
 
 As you can see, even though we get noticeable banding on the SSAO results due to a low sample count, by introducing some randomness the banding effects are completely gone.
 
-正如你所看到的，即使由于减少了样本数量使得SSAO结果上出现了明显的条带，但通过引入一些随机性，条带效果完全消失了。
+正如你所看到的，由于减少了样本数量，即使 SSAO 结果上出现了明显的条带，但通过引入一些随机性，条带效果完全消失了。
 
 The SSAO method developed by Crytek had a certain visual style. Because the sample kernel used was a sphere, it caused flat walls to look gray as half of the kernel samples end up being in the surrounding geometry. Below is an image of Crysis's screen-space ambient occlusion that clearly portrays this gray feel:
 
-Crytek开发的SSAO方法有一个特定的视觉风格。因为使用的样本核是一个球体，它会导致平坦的墙壁看起来是灰色的，因为核内一半的样本最终是在周围的几何体里。下面是《孤岛危机》的屏幕空间环境光遮蔽图像，清楚地描绘了这种灰色的感觉(平坦墙壁墙面的中间显示为深灰色，带有环境光遮蔽的效果，其实是不应该有的)：
+Crytek开发的SSAO方法有一个特定的视觉风格。因为使用的样本核是一个球体，核内一半的样本最终是在周围的几何体里，它会导致平坦的墙壁看起来是灰色的。下面是《孤岛危机》的屏幕空间环境光遮蔽图像，清楚地描绘了这种灰色的感觉(平坦墙壁墙面的中间显示为深灰色，带有环境光遮蔽的效果，其实是不应该有的，因为墙面的中间部位四周并没有被遮挡)：
 
 <p align="center">
   <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-Crysis.jpg">
@@ -60,7 +66,7 @@ Crytek开发的SSAO方法有一个特定的视觉风格。因为使用的样本�
 
 For that reason we won't be using a sphere sample kernel, but rather a hemisphere sample kernel oriented along a surface's normal vector.
 
-因此，我们不会使用球形样本核，而是用一个半球样本核，这个半球样本核以表面的法向量方向确定朝向。
+因此，我们不会使用球形样本核，而是用一个半球样本核，这个半球样本核朝向表面的法向量方向。
 
 <p align="center">
   <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-Hemisphere.png">
@@ -92,7 +98,7 @@ Using a per-fragment view-space position we can orient a sample hemisphere kerne
 
 As SSAO is a screen-space technique we calculate its effect on each fragment on a screen-filled 2D quad. This does mean we have no geometrical information of the scene. What we could do, is render the geometrical per-fragment data into screen-space textures that we then later send to the SSAO shader so we have access to the per-fragment geometrical data. If you've followed along with the previous chapter you'll realize this looks quite like a deferred renderer's G-buffer setup. For that reason SSAO is perfectly suited in combination with deferred rendering as we already have the position and normal vectors in the G-buffer.
 
-由于 SSAO 是一种屏幕空间技术，因此我们计算了它对填充屏幕的 2D 四边形上每个片段的影响。这确实意味着我们没有场景的几何信息。我们可以做的是将每个片段的几何数据渲染为屏幕空间纹理，然后将其发送到 SSAO 着色器，以便我们可以访问每个片段的几何数据。如果你已经学习了上一章的内容，你会发现这看起来很像延迟渲染器的 G-buffer 设置。因此，SSAO 非常适合与延迟渲染结合使用，因为我们已经在 G-buffer 中存储了位置和法向量。
+由于 SSAO 是一种屏幕空间技术，因此我们要计算它对填充屏幕的 2D 四边形上每个片段的影响。这确实意味着我们在计算时没有场景的几何信息。我们可以做的是将每个片段的几何数据渲染为屏幕空间纹理，然后将其发送到 SSAO 着色器，以便我们可以访问每个片段的几何数据。如果你已经学习了上一章的内容，你会发现这看起来很像延迟渲染器的 G-buffer 设置。因此，SSAO 非常适合与延迟渲染结合使用，因为延迟渲染已经在 G-buffer 中存储了位置和法向量。
 
 As we should have per-fragment position and normal data available from the scene objects, the fragment shader of the geometry stage is fairly simple:
 
@@ -172,10 +178,10 @@ for (unsigned int i = 0; i < 64; ++i)
         randomFloats(generator)
     );
 
-    // 将样本归一化到半球表面
+    // 将样本归一化到单位半球表面
     sample  = glm::normalize(sample);
 
-    // 将样本随机到半球内部
+    // 将样本随机到单位半球内部
     sample *= randomFloats(generator);
 
     ssaoKernel.push_back(sample);  
@@ -184,16 +190,16 @@ for (unsigned int i = 0; i < 64; ++i)
 
 We vary the x and y direction in tangent space between -1.0 and 1.0, and vary the z direction of the samples between 0.0 and 1.0 (if we varied the z direction between -1.0 and 1.0 as well we'd have a sphere sample kernel). As the sample kernel will be oriented along the surface normal, the resulting sample vectors will all end up in the hemisphere.
 
-我们在切线空间中 -1.0 和 1.0 之间变换 x and y 范围，并在 0.0 和 1.0 之间变换样本的 z 范围（如果我们在 -1.0 和 1.0 之间变换 z 范围，我们将得到一个球形样本核）。由于样本核将沿表面法线定向，因此生成的样本向量最终将全部在半球内。
+我们在切线空间中变换 x 和 y 范围到 -1.0 和 1.0 之间，并变换样本的 z 范围到 0.0 和 1.0 之间（如果我们变换 z 范围到 -1.0 和 1.0 之间，我们将得到一个球形样本核）。由于样本核将沿表面法线定向，因此生成的样本向量最终将全部在半球内。
 
 Currently, all samples are randomly distributed in the sample kernel, but we'd rather place a larger weight on occlusions close to the actual fragment. We want to distribute more kernel samples closer to the origin. We can do this with an accelerating interpolation function:
 
-目前，所有样本都是随机分布在样本核中的，但我们更愿意在靠近实际片段的遮挡上放置更大的权重。我们希望在更接近原点的地方分布更多的核样本。可以通过加速插值函数来做到这一点：
+现在，所有样本都是随机分布在样本核中的，但我们更愿意在靠近实际片段的遮挡上放置更大的权重。我们希望在更接近原点的地方分布更多的核样本。可以通过加速插值函数来做到这一点：
 
 ```c++
-   float scale = (float)i / 64.0; 
-   scale   = lerp(0.1f, 1.0f, scale * scale);
-   sample *= scale;
+   float scale = (float)i / 64.0;             // scale 值范围是 [0, 1)
+   scale   = lerp(0.1f, 1.0f, scale * scale); // 插值权重使用 scale * scale 形式的指数抛物线，相比于直接使用 scale 形式的线性权重，在[0, 1)的取值范围内，使得更多次插值取值后获取的 scale 更靠近 0.1
+   sample *= scale;                           // sample 本身是单位半球内的样本，再使用 scale 缩放后，长度更小，更靠近片段了
    ssaoKernel.push_back(sample); 
 ```
 
@@ -228,7 +234,7 @@ By introducing some randomness onto the sample kernels we largely reduce the num
 
 We create a 4x4 array of random rotation vectors oriented around the tangent-space surface normal:
 
-我们创建一个 4x4 的随机旋转向量数组，随机旋转向量面向切线空间表面法线：
+我们创建一个 4x4 的随机旋转向量数组，随机旋转向量的朝向围绕着切线空间表面法线：
 
 ```c++
 std::vector<glm::vec3> ssaoNoise;
@@ -353,11 +359,11 @@ void main()
 
 Interesting to note here is the noiseScale variable. We want to tile the noise texture all over the screen, but as the TexCoords vary between 0.0 and 1.0, the texNoise texture won't tile at all. So we'll calculate the required amount to scale TexCoords by dividing the screen's dimensions by the noise texture size.
 
-这里需要注意的是 noiseScale 变量。我们想在整个屏幕上铺满之前创建的 4x4 噪声纹理瓦片，但由于 TexCoords 在 0.0 和 1.0 之间变化，texNoise 纹理根本不会被按这样的预想方式平铺。因此，我们通过将屏幕的尺寸除以噪声纹理尺寸来计算所需的 TexCoords 缩放量。
+这里需要注意的是 noiseScale 变量。我们想在整个屏幕上铺满之前创建的 4x4 噪声纹理瓦片，但由于 TexCoords 在 0.0 和 1.0 之间变化，texNoise 纹理根本不会被按这样的预想方式平铺开来。因此，我们通过将屏幕的尺寸除以噪声纹理尺寸来计算所需的 TexCoords 缩放量。
 
 ```glsl
-vec3 fragPos   = texture(gPosition, TexCoords).xyz;
-vec3 normal    = texture(gNormal, TexCoords).rgb;
+vec3 fragPos   = texture(gPosition, TexCoords).xyz;             // 片段在视图空间中的位置
+vec3 normal    = texture(gNormal, TexCoords).rgb;               // 片段在视图空间中的法线
 vec3 randomVec = texture(texNoise, TexCoords * noiseScale).xyz;
 ```
 
@@ -393,11 +399,11 @@ for(int i = 0; i < kernelSize; ++i)
 
 Here kernelSize and radius are variables that we can use to tweak the effect; in this case a value of 64 and 0.5 respectively. For each iteration we first transform the respective sample to view-space. We then add the view-space kernel offset sample to the view-space fragment position. Then we multiply the offset sample by radius to increase (or decrease) the effective sample radius of SSAO.
 
-这里 kernelSize 和 radius 是我们可以用来调整效果的变量；在本例中，值分别为 64 和 0.5。对于每次迭代，我们首先将相应的样本转换到视图空间。然后，我们将视图空间核偏移样本添加到视图空间片段位置。然后，我们将偏移样本乘以半径以增加（或减少）SSAO 的有效样本半径。
+这里 kernelSize 和 radius 是我们可以用来调整效果的变量；在本例中，值分别为 64 和 0.5。对于每次迭代，首先我们将相应的样本转换到视图空间。然后，我们将偏移样本乘以半径以增加（或减少）SSAO 的有效样本半径。再然后，我们将视图空间核偏移样本添加到视图空间片段位置上。
 
 Next we want to transform sample to screen-space so we can sample the position/depth value of sample as if we were rendering its position directly to the screen. As the vector is currently in view-space, we'll transform it to clip-space first using the projection matrix uniform:
 
-接下来，我们要将样本转换为屏幕空间，以便我们可以对样本的位置/深度值进行采样，就好像我们将其位置直接渲染到屏幕上一样。由于向量当前位于视图空间中，我们将首先使用投影矩阵 uniform 将其转换到裁剪空间：
+接下来，我们要将样本转换到屏幕空间，以便我们可以对（位置缓冲纹理中）样本（对应）的位置/深度值进行采样，就好像我们将其位置直接渲染到屏幕上一样。由于向量当前位于视图空间中，我们将首先使用投影矩阵 uniform 将其转换到裁剪空间：
 
 ```glsl
 vec4 offset = vec4(samplePos, 1.0);
@@ -408,7 +414,7 @@ offset.xyz  = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
 
 After the variable is transformed to clip-space, we perform the perspective divide step by dividing its xyz components with its w component. The resulting normalized device coordinates are then transformed to the [0.0, 1.0] range so we can use them to sample the position texture:
 
-将变量转换到裁剪空间后，我们通过将其 xyz 分量与其 w 分量相除来执行透视除法步骤。然后将生成的标准化设备坐标转换到 [ 0.0 ， 1.0 ] 范围，以便我们可以使用它们对位置纹理进行采样：
+将变量转换到裁剪空间后，我们通过将其 xyz 分量与其 w 分量相除来执行透视除法步骤。然后将生成的标准化设备坐标转换到 [0.0, 1.0] 范围，以便我们可以使用它们对位置纹理进行采样：
 
 ```glsl
 float sampleDepth = texture(gPosition, offset.xy).z;
@@ -419,7 +425,19 @@ We use the offset vector's x and y component to sample the position texture to r
 我们使用偏移向量的 x 和 y 分量对位置纹理进行采样，以获取从观察者视角看到的样本位置的深度（或 z 值）（第一个未被遮挡的可见片段）。然后，我们检查样本的当前深度值是否大于存储的深度值，如果是，则添加到最终贡献因子中：
 
 ```glsl
+// 判断样本有没有被遮挡
+// 如果 sampleDepth 大于或等于 sample.z + bias，则认为样本点没有被遮挡，返回 1.0；否则，认为样本点被遮挡，返回 0.0。
 occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0);
+//            -----------    -----------
+//                ||             ||
+//                ||             \/
+//                ||            样本点
+//                ||       在视图空间中的深度
+//                \/             
+//          样本点对应在屏幕上
+//          那个最靠近观察者的
+//           第一个可见片段        
+//          在视图空间中的深度        
 ```
 
 Note that we add a small bias here to the original fragment's depth value (set to 0.025 in this example). A bias isn't always necessary, but it helps visually tweak the SSAO effect and solves acne effects that may occur based on the scene's complexity.
@@ -428,7 +446,7 @@ Note that we add a small bias here to the original fragment's depth value (set t
 
 We're not completely finished yet as there is still a small issue we have to take into account. Whenever a fragment is tested for ambient occlusion that is aligned close to the edge of a surface, it will also consider depth values of surfaces far behind the test surface; these values will (incorrectly) contribute to the occlusion factor. We can solve this by introducing a range check as the following image (courtesy of John Chapman) illustrates:
 
-我们还没有完全完成，因为还有一个小问题我们必须考虑。每当为环境光遮蔽测试靠近表面边缘的片段时，它还会将远在测试表面后面的表面的深度值考虑在内（以下面左侧图片为例说明，这会导致佛像边缘和后面墙壁间产生环境光遮蔽效果，但其实佛像和后面墙壁距离还很远，它们之间没有这么明显的影响）;这些值将（错误地）影响遮挡因子。我们可以通过引入范围检查来解决这个问题，如下图所示（由 John Chapman 提供）：
+我们还没有完全完成，因为还有一个小问题我们必须考虑。每当为环境光遮蔽测试靠近表面边缘的片段时，它还会将远在测试片段后面的表面的深度值考虑在内（以下面左侧图片为例说明，这会导致佛像边缘和后面墙壁间产生环境光遮蔽效果，但其实佛像和后面墙壁距离还很远，它们之间没有这么明显的影响）;这些值将（错误地）影响遮挡因子。我们可以通过引入范围检查来解决这个问题，如下图所示（由 John Chapman 提供）：
 
 <p align="center">
   <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-RangeCheck.png">
