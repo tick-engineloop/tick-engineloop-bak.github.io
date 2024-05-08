@@ -501,6 +501,7 @@ It still doesn't look perfect, as the repeating pattern of the noise texture is 
 # Ambient occlusion blur
 
 Between the SSAO pass and the lighting pass, we first want to blur the SSAO texture. So let's create yet another framebuffer object for storing the blur result:
+
 在 SSAO 通道和 lighting 通道之间，我们还要对 SSAO 纹理进行模糊。因此，让我们创建另一个用于存储模糊结果的帧缓冲对象：
 
 ```c++
