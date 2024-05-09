@@ -153,17 +153,17 @@ Next, we need the actual hemisphere sample kernel and some method to randomly ro
 
 # Normal-oriented hemisphere
 
-We need to generate a number of samples oriented along the normal of a surface. As we briefly discussed at the start of this chapter, we want to generate samples that form a hemisphere. As it is difficult nor plausible to generate a sample kernel for each surface normal direction, we're going to generate a sample kernel in tangent space, with the normal vector pointing in the positive z direction.
+We need to generate a number of samples oriented along the normal of a surface. As we briefly discussed at the start of this chapter, we want to generate samples that form a hemisphere. 
 
-我们需要沿表面法线方向生成许多的样本。正如我们在本章开头简要讨论的那样，我们希望生成的样本呈半球状。由于为每个表面法向生成一个样本核既困难也不合理，因此我们将在切线空间中生成一个样本核，切线空间中法向量指向正 z 方向。
+我们需要沿表面法线方向生成许多的样本。正如我们在本章开头简要讨论的那样，我们希望生成的样本呈半球状。
 
 <p align="center">
   <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-Hemisphere.png">
 </p>
 
-Assuming we have a unit hemisphere, we can obtain a sample kernel with a maximum of 64 sample values as follows:
+As it is difficult nor plausible to generate a sample kernel for each surface normal direction, we're going to generate a sample kernel in tangent space, with the normal vector pointing in the positive z direction. Assuming we have a unit hemisphere, we can obtain a sample kernel with a maximum of 64 sample values as follows:
 
-假设我们有一个单位半球，我们可以得到如下一个最大 64 样本数的样本核：
+由于为每个表面法向生成一个样本核既困难也不合理，因此我们将在切线空间中生成一个样本核，切线空间中法向量指向正 z 方向。假设我们有一个单位半球，我们可以得到如下一个最大 64 样本数的样本核：
 
 ```c++
 std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between [0.0, 1.0]
@@ -192,6 +192,10 @@ We vary the x and y direction in tangent space between -1.0 and 1.0, and vary th
 
 我们在切线空间中变换 x 和 y 范围到 -1.0 和 1.0 之间，并变换样本的 z 范围到 0.0 和 1.0 之间（如果我们变换 z 范围到 -1.0 和 1.0 之间，我们将得到一个球形样本核）。由于样本核将沿表面法线定向，因此生成的样本向量最终将全部在半球内。
 
+<p align="center">
+  <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-HemisphereKernel.png">
+</p>
+
 Currently, all samples are randomly distributed in the sample kernel, but we'd rather place a larger weight on occlusions close to the actual fragment. We want to distribute more kernel samples closer to the origin. We can do this with an accelerating interpolation function:
 
 现在，所有样本都是随机分布在样本核中的，但我们更愿意在靠近实际片段的遮挡上放置更大的权重。我们希望在更接近原点的地方分布更多的核样本。可以通过加速插值函数来做到这一点：
@@ -213,18 +217,29 @@ float lerp(float a, float b, float f)
     return a + f * (b - a); // (1 - f) * a + f * b
 }
 ```
+<p align="center">
+  <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-ScaleLerp.png">
+</p>
 
 This gives us a kernel distribution that places most samples closer to its origin.
 
 这为我们提供了一个使大多数样本更接近其原点的核分布。
 
 <p align="center">
-  <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-KernelWeight.png">
+  <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-WeightedKernel.png">
 </p>
 
-Each of the kernel samples will be used to offset the view-space fragment position to sample surrounding geometry. We do need quite a lot of samples in view-space in order to get realistic results, which may be too heavy on performance. However, if we can introduce some semi-random rotation/noise on a per-fragment basis, we can significantly reduce the number of samples required.
+Each of the kernel samples will be used to offset the view-space fragment position to sample surrounding geometry. 
 
-每个核样本将用于偏移视图空间片段位置，以对周围的几何体进行采样。为了获得逼真的结果，我们确实需要在视图空间中提供相当多的样本，这可能对性能的影响很大。但是，如果我们可以在每个片段的基础上引入一些半随机旋转/噪声，我们可以显著减少所需的样本数量。
+每个核样本将用于偏移视图空间片段位置，以对周围的几何体进行采样。将带权重的样本核应用到表面将会是如下图所示效果：
+
+<p align="center">
+  <img src="../../../../../images/LearnOpenGL-AdvancedLighting-SSAO-ApplyWeightedKernel.png">
+</p>
+
+We do need quite a lot of samples in view-space in order to get realistic results, which may be too heavy on performance. However, if we can introduce some semi-random rotation/noise on a per-fragment basis, we can significantly reduce the number of samples required.
+
+为了获得逼真的结果，我们确实需要在视图空间中提供相当多的样本，这可能对性能的影响很大。但是，如果我们可以在每个片段的基础上引入一些半随机旋转/噪声，我们可以显著减少所需的样本数量。
 
 # Random kernel rotations
 
