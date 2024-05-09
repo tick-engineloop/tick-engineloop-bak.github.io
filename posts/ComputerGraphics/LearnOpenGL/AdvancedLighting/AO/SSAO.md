@@ -163,7 +163,7 @@ We need to generate a number of samples oriented along the normal of a surface. 
 
 As it is difficult nor plausible to generate a sample kernel for each surface normal direction, we're going to generate a sample kernel in tangent space, with the normal vector pointing in the positive z direction. Assuming we have a unit hemisphere, we can obtain a sample kernel with a maximum of 64 sample values as follows:
 
-由于为每个表面法向生成一个样本核既困难也不合理，因此我们将在切线空间中生成一个样本核，切线空间中法向量指向正 z 方向。假设我们有一个单位半球，我们可以得到如下一个最大 64 样本数的样本核：
+由于为每个表面法线方向生成一个样本核既困难也不合理，因此我们将在切线空间中生成一个样本核，切线空间中法向量指向正 z 方向。假设我们有一个单位半球，我们可以得到如下一个最大 64 样本数的样本核：
 
 ```c++
 std::uniform_real_distribution<float> randomFloats(0.0, 1.0); // random floats between [0.0, 1.0]
@@ -394,7 +394,14 @@ mat3 TBN       = mat3(tangent, bitangent, normal);
 
 Using a process called the Gramm-Schmidt process we create an orthogonal basis, each time slightly tilted based on the value of randomVec. Note that because we use a random vector for constructing the tangent vector, there is no need to have the TBN matrix exactly aligned to the geometry's surface, thus no need for per-vertex tangent (and bitangent) vectors.
 
-使用一种称为 Gramm-Schmidt 处理的过程，我们创建了一个正交基，每次都根据 randomVec 的值略微倾斜。请注意，由于我们使用随机向量来构造切向量，在这里不需要将 TBN 矩阵与几何图形的表面精确对齐，因此不需要每个顶点的正切（和副切）向量。
+使用一种称为 Gramm-Schmidt 处理的过程，我们创建了一个正交基，并根据 randomVec 的值进行了略微倾斜。请注意，由于我们使用随机向量来构造切向量，在这里不需要将 TBN 矩阵与几何图形的表面精确对齐，因此不需要每个顶点的正切（和副切）向量。
+
+<div class="attention-box">
+  <p>注意，这是一个重要的通知！</p>
+</div>
+
+> **Note**<br>
+对于切向量的计算，这里解释下计算过程：因为 normal 为单位法向量，randomVec 和 normal 点积（即 dot(randomVec, normal)）给出了 randomVec 在 normal 方向上的投影长度。然后，我们将这个投影长度乘以 normal 向量（即 normal * dot(randomVec, normal)），得到 randomVec 在 normal 方向上的分量。从 randomVec 中减去这个分量，我们就得到了一个新的向量，它与 normal 向量垂直，这一步我们实际上是在消除 randomVec 中与 normal 平行的部分，从而得到一个与 normal 垂直的向量，因为 randomVec 可以分解为平行于 normal 的分量 h_randomVec 和垂直于 normal 的分量 v_randomVec，即 randomVec = h_randomVec + v_randomVec。
 
 Next we iterate over each of the kernel samples, transform the samples from tangent to view-space, add them to the current fragment position, and compare the fragment position's depth with the sample depth stored in the view-space position buffer. Let's discuss this in a step-by-step fashion:
 
