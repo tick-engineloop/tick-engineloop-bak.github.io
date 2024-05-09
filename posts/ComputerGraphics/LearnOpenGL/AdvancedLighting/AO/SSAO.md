@@ -462,8 +462,14 @@ occlusion += (sampleDepth >= samplePos.z + bias ? 1.0 : 0.0);
 //           第一个可见片段        
 //          在视图空间中的深度        
 ```
-> **Note**<br>
-OpenGL 视图空间坐标被定义在右手坐标系系统中，X 轴向右，Y 轴向上，Z 轴朝屏幕外。摄像机位于原点（0,0,0）并始终看向 -Z 轴。这里深度和 Z 值呈反向关系，因此离相机越远深度越大获取的 Z 值越小，离相机越近深度越小获取的 Z 值越大。sampleDepth 和 samplePos.z 都是负值，sampleDepth 值大于等于 samplePos.z，说明样本对应在屏幕上的可见片段深度小于样本点深度（也就是上文说的当前样本深度值大于存储的深度值意思），离相机更近，对于样本点形成了遮挡。
+
+<div class="note-box">
+  <p>
+    <font size=2>
+      OpenGL 视图空间坐标被定义在右手坐标系系统中，X 轴向右，Y 轴向上，Z 轴朝屏幕外。摄像机位于原点（0,0,0）并始终看向 -Z 轴。这里深度和 Z 值呈反向关系，因此离相机越远深度越大获取的 Z 值越小，离相机越近深度越小获取的 Z 值越大。sampleDepth 和 samplePos.z 都是负值，sampleDepth 值大于等于 samplePos.z，说明样本对应在屏幕上的可见片段深度小于样本点深度（也就是上文说的当前样本深度值大于存储的深度值意思），离相机更近，对于样本点形成了遮挡。
+    </font>
+  </p>
+</div>
 
 Note that we add a small bias here to the original fragment's depth value (set to 0.025 in this example). A bias isn't always necessary, but it helps visually tweak the SSAO effect and solves acne effects that may occur based on the scene's complexity.
 
