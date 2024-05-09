@@ -397,11 +397,8 @@ Using a process called the Gramm-Schmidt process we create an orthogonal basis, 
 使用一种称为 Gramm-Schmidt 处理的过程，我们创建了一个正交基，并根据 randomVec 的值进行了略微倾斜。请注意，由于我们使用随机向量来构造切向量，在这里不需要将 TBN 矩阵与几何图形的表面精确对齐，因此不需要每个顶点的正切（和副切）向量。
 
 <div class="attention-box">
-  <p>注意，这是一个重要的通知！</p>
+  <p>对于切向量的计算，这里解释下计算过程：因为 normal 为单位法向量，randomVec 和 normal 点积（即 dot(randomVec, normal)）给出了 randomVec 在 normal 方向上的投影长度。然后，我们将这个投影长度乘以 normal 向量（即 normal * dot(randomVec, normal)），得到 randomVec 在 normal 方向上的分量。从 randomVec 中减去这个分量，我们就得到了一个新的向量，它与 normal 向量垂直，这一步我们实际上是在消除 randomVec 中与 normal 平行的部分，从而得到一个与 normal 垂直的向量，因为 randomVec 可以分解为平行于 normal 的分量 h_randomVec 和垂直于 normal 的分量 v_randomVec，即 randomVec = h_randomVec + v_randomVec。</p>
 </div>
-
-> **Note**<br>
-对于切向量的计算，这里解释下计算过程：因为 normal 为单位法向量，randomVec 和 normal 点积（即 dot(randomVec, normal)）给出了 randomVec 在 normal 方向上的投影长度。然后，我们将这个投影长度乘以 normal 向量（即 normal * dot(randomVec, normal)），得到 randomVec 在 normal 方向上的分量。从 randomVec 中减去这个分量，我们就得到了一个新的向量，它与 normal 向量垂直，这一步我们实际上是在消除 randomVec 中与 normal 平行的部分，从而得到一个与 normal 垂直的向量，因为 randomVec 可以分解为平行于 normal 的分量 h_randomVec 和垂直于 normal 的分量 v_randomVec，即 randomVec = h_randomVec + v_randomVec。
 
 Next we iterate over each of the kernel samples, transform the samples from tangent to view-space, add them to the current fragment position, and compare the fragment position's depth with the sample depth stored in the view-space position buffer. Let's discuss this in a step-by-step fashion:
 
