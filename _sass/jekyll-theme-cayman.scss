@@ -377,9 +377,16 @@ a {
   color: $blockquote-text-color;
 }
 
-.attention-box {
+.note-box {
   border: 3px solid #afdfaf;
   padding: 20px;
-  margin: 25px 0;
+  margin: 25px;
   background-color: #d8f5d8;
+}
+
+.attention-box {
+  border: 3px solid #e0b3b3;
+  padding: 20px;
+  margin: 25px;
+  background-color: #ffd2d2;
 }
