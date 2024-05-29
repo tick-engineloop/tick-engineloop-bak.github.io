@@ -416,7 +416,8 @@ What we want to do is solve this equation for when $F_{light}$ is 0.0. However, 
   </p>
   <p>
     The attenuation function used is mostly dark in its visible range. If we were to limit it to an even darker brightness than 5/256, the light volume would become too large and thus less effective. As long as a user cannot see a sudden cut-off of a light source at its volume borders we'll be fine. Of course this always depends on the type of scene; a higher brightness threshold results in smaller light volumes and thus a better efficiency, but can produce noticeable artifacts where lighting seems to break at a volume's borders.
-
+  </p>
+  <p>
     由上面曲线可以看出，我们使用的衰减方程在光的可视范围内绝大部分距离外都是黑暗的，所以如果我们想要限制亮度为一个比 5/256 更暗的值，光体积就会变得非常大而且低效。只要在光体积边缘看不到突兀的截断就行。当然这还是依赖于场景类型的，一个较高的亮度阀值会致使生成更小的光体积，从而获得更高的效率，但它同样会产生一个明显的加工痕迹，就是光会在光体积边界看起来突然断掉。
   </p>
 </div>
