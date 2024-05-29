@@ -4,6 +4,8 @@ title: Advanced Lighting
 description: 高级光照
 ---
 
+# [Deferred Shading](./DeferredShading.md)
+
 # [Shadow](./Shadow/index.md)
 
 # [AO](./AO/index.md)
