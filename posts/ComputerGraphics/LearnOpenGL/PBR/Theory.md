@@ -15,16 +15,6 @@ title: PBR Theory
     </script>
 </head>
 
-<div class="container">
-    <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
-    <ul class="nav bs-sidenav">
-        <li class="main active"> <a href="#introduce">Introduce</a> </li>
-        <li><a href="#the-microfacet-model">The microfacet model</a></li>
-        <li><a href="#energy-conservation">Energy conservation</a></li>
-        <li><a href="#the-reflectance-equation">The reflectance equation</a></li>
-    </ul>
-<div class="col-md-9" role="main">
-
 # Introduce
 
 PBR, or more commonly known as physically based rendering, is a collection of render techniques that are more or less based on the same underlying theory that more closely matches that of the physical world. As physically based rendering aims to mimic light in a physically plausible way, it generally looks more realistic compared to our original lighting algorithms like Phong and Blinn-Phong. Not only does it look better, as it closely approximates actual physics, we (and especially the artists) can author surface materials based on physical parameters without having to resort to cheap hacks and tweaks to make the lighting look right. One of the bigger advantages of authoring materials based on physical parameters is that these materials will look correct regardless of lighting conditions; something that is not true in non-PBR pipelines.
