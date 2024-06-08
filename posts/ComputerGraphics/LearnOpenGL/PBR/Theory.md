@@ -3,6 +3,12 @@ layout: default
 title: PBR Theory
 ---
 
+<div class="sidebar">
+  <ul>
+    <li><a class="sidebar-link" href="#introduce">{{ Introduce }}</a><li>
+  </ul>
+</div>
+
 <head>
     <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
     <script type="text/x-mathjax-config">
@@ -14,12 +20,6 @@ title: PBR Theory
         });
     </script>
 </head>
-
-<div class="sidebar">
-  <ul>
-    <li><a class="sidebar-link" href="#introduce">{{ Introduce }}</a><li>
-  </ul>
-</div>
 
 # Introduce
 
