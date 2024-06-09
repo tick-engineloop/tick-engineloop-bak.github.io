@@ -400,17 +400,3 @@ a {
   margin: 0px;
   font-size: 14px;
 }
-
-.sidebar {
-  position: fixed;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-  background-color: #f9f9f9;
-  padding: 10px;
-  width: 200px;
-}
-.sidebar-link {
-  display: block;
-  margin-bottom: 10px;
-}

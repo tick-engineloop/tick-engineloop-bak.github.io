@@ -4,18 +4,6 @@ title: Coordinate Systems & Transformations
 description: world space、camera space、clip space. etc
 ---
 
-<head>
-    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-            tex2jax: {
-                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-                inlineMath: [['$','$']]
-            }
-        });
-    </script>
-</head>
-
 - [Coordinate Systems](#coordinate-systems)
     - [Local space](#local-space)
     - [World space](#world-space)

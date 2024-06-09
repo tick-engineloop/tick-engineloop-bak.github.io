@@ -4,18 +4,6 @@ title: Hessian Normal Form
 description: 平面方程的海森法线形式
 ---
 
-<head>
-    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-            tex2jax: {
-                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-                inlineMath: [['$','$']]
-            }
-        });
-    </script>
-</head>
-
 It is especially convenient to specify planes in so-called Hessian normal form. This is obtained from the general equation of a plane
 
 以所谓的 Hessian 法线形式指定平面尤其方便。这是从平面的一般方程中得到的

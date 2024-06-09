@@ -4,18 +4,6 @@ title: Linearization of nonlinear depth values in screen space
 description: 介绍在透视视图时，片段的屏幕空间内非线性化深度值如何进行线性化
 ---
 
-<head>
-    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-            tex2jax: {
-                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-                inlineMath: [['$','$']]
-            }
-        });
-    </script>
-</head>
-
 # Perspective projection Matrix
 
 <p align="center">

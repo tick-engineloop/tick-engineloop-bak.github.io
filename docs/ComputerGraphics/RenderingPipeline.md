@@ -4,19 +4,6 @@ title: Rendering Pipeline
 description: 渲染管线中一些需要熟记的知识点
 ---
 
-<head>
-    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
-    <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({
-            tex2jax: {
-                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-                inlineMath: [['$','$']]
-            }
-        });
-    </script>
-</head>
-
-
 - [OpenGL](#opengl)
   - [Vertex Post-Processing](#vertex-post-processing)
     - [Clipping](#clipping)

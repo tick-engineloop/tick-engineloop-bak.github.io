@@ -4,11 +4,11 @@ title: EngineLoop.Tick
 description: EngineLoop.Tick's GitHub Pages.
 ---
 
-# [MISC](./posts/MISC/index.md)
+# [MISC](./docs/MISC/index.md)
 
-# [Handy Notes](./posts/HandyNotes/index.html)
+# [Handy Notes](./docs/HandyNotes/index.html)
 
-# [Computer Graphics](./posts/ComputerGraphics/index.md)
+# [Computer Graphics](./docs/ComputerGraphics/index.md)
 
 
 ```
