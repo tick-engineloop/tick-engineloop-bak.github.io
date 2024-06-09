@@ -400,3 +400,23 @@ a {
   margin: 0px;
   font-size: 14px;
 }
+
+.sidenavbar {
+  width: 200px;  
+  background-color: #f8f9fa;  
+  padding: 20px;  
+  position: fixed;  
+  top: 0;  
+  bottom: 0;  
+  left: 0;  
+  overflow-y: auto;  
+}  
+  
+.sidenavbar nav ul {  
+  list-style-type: none;  
+  padding: 0;  
+}  
+  
+.sidenavbar nav ul li {  
+  margin-bottom: 10px;  
+}  
