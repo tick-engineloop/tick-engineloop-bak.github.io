@@ -122,7 +122,7 @@ This way we know both the amount the incoming light reflects and the amount the 
 
 This brings us to something called the render equation, an elaborate equation some very smart folks out there came up with that is currently the best model we have for simulating the visuals of light. Physically based rendering strongly follows a more specialized version of the render equation known as the reflectance equation. To properly understand PBR, it's important to first build a solid understanding of the reflectance equation:
 
-在这里我们引入了一种被称为“渲染方程”的东西，它是某些聪明绝顶的人所构想出来的一个精妙的方程式，是目前我们模拟光线视觉效果的最佳模型。基于物理的渲染主要遵循渲染方程的一个更为特定的版本，即反射方程。要正确理解 PBR，首先必须对反射方程要有一个扎实的了解：
+在这里我们引入了一种被称为“渲染方程”的东西，它是某些聪明绝顶的人所构想出来的一个精妙的方程式，是目前我们模拟光线视觉效果最佳的模型。基于物理的渲染主要遵循渲染方程的一个更为特定的版本，即反射方程。要正确理解 PBR，首先必须对反射方程要有一个扎实的了解：
 
 $$
 L_o(p,\omega_o) = \int\limits_{\Omega} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) n \cdot \omega_i  d\omega_i
@@ -199,3 +199,68 @@ float cosTheta = dot(lightDir, N);
 The radiance equation is quite useful as it contains most physical quantities we're interested in. If we consider the solid angle $\omega$ and the area $A$ to be infinitely small, we can use radiance to measure the flux of a single ray of light hitting a single point in space. This relation allows us to calculate the radiance of a single light ray influencing a single (fragment) point; we effectively translate the solid angle $\omega$ into a direction vector $\omega$, and $A$ into a point $p$. This way, we can directly use radiance in our shaders to calculate a single light ray's per-fragment contribution.
 
 辐射率方程非常有用，因为它包含了大多数我们感兴趣的物理量。如果认为立体角 $\omega$ 和面积 $A$ 是无穷小的，那么就可以把立体角 $\omega$ 转化为方向向量 $\omega$，把 $A$ 转化为点 $p$，我们就可以用辐射率来测量单束光线射向空间中单个点时的通量。通过这种关系，我们可以计算出作用于单个（片段）点上的单束光线的辐射率。这样，我们就可以在着色器中直接使用辐射率来计算单束光线对每个片段的贡献。
+
+<div class="note-box">
+  <p>
+    <strong>Radient energy</strong>: 辐射能量，单位为焦耳。<br>
+    <strong>Radient flux</strong>: 辐射通量，每单位时间的辐射能量，单位为瓦特。亦可称作“辐射功率（Radiant power）”。<br>
+    <strong>Radient Intensity</strong>: 辐射强度，每单位立体角的辐射通量。表示的是一个光源向以它自身为球心的单位球面每单位立体角所投射的辐射通量。<br>
+    <strong>Radiant exitance</strong>: 辐射出射度，表面出射的辐射通量，单位为瓦特每平方米。<br>
+    <strong>Radiance</strong>: 辐射率，每单位立体角每单位投射表面的辐射通量，单位为瓦特每球面度每平方米。可分为 exiting radiance 和 incident radiance。<br>
+    <strong>Irradiance</strong>: 辐照度，入射表面的辐射通量，单位为瓦特每平方米。Irradiance 是面积 $dA$ 上从整个半球方向上接收到的辐射通量。Radiance 只关注 $dA$ 从某一特定方向单位立体角上得到的辐射通量，Radiance 是 Irradiance 在某一方向上的微分，在半球域内对 Radiance 积分就可以得到 Irradiance。
+  </p>
+</div>
+
+In fact, when it comes to radiance we generally care about all incoming light onto a point $p$, which is the sum of all radiance known as irradiance. With knowledge of both radiance and irradiance we can get back to the reflectance equation:
+
+事实上，在谈到辐射率时，我们通常关心的是照射到点 $p$ 上的所有入射光，即称为辐照度的所有辐射率的总和。有了辐射度和辐照度的知识，我们就可以回到反射方程：
+
+$$
+L_o(p,\omega_o) = \int\limits_{\Omega} f_r(p,\omega_i,\omega_o) L_i(p,\omega_i) n \cdot \omega_i  d\omega_i
+$$
+
+We now know that $L$ in the render equation represents the radiance of some point $p$ and some incoming infinitely small solid angle $\omega_i$ which can be thought of as an incoming direction vector $\omega_i$. Remember that $\cos \theta$ scales the energy based on the light's incident angle to the surface, which we find in the reflectance equation as $n \cdot \omega_i$. The reflectance equation calculates the sum of reflected radiance $L_o(p, \omega_o)$ of a point $p$ in direction $\omega_o$ which is the outgoing direction to the viewer. Or to put it differently: $L_o$ measures the reflected sum of the lights' irradiance onto point $p$ as viewed from $\omega_o$.
+
+现在我们知道，渲染方程中的 $L$ 代表了某个点 $p$ 和某个无穷小的入射立体角 $\omega_i$，可以将这个无穷小的入射立体角视为入射方向向量 $\omega_i$。请记住，我们利用光线到表面的入射角的余弦值 $\cos \theta$ 来计算能量，即就是反射方程中的 $n \cdot \omega_i$。用 $\omega_o$ 表示向着观察者的出射方向，反射方程计算的是一个点 $p$ 在 $\omega_o$ 方向上被反射的辐射率总和 $L_o(p,\omega_o)$。或者换一种说法：$L_o$ 测量的是从 $\omega_o$ 方向看向 $p$ 点时被反射的光线辐照度总和。
+
+<p align="center">
+  <img src="../../../../images/LearnOpenGL-PBR-Theory-IncidentAngle.jpg">
+</p>
+
+The reflectance equation is based around irradiance, which is the sum of all incoming radiance we measure light of. Not just of a single incoming light direction, but of all incoming light directions within a hemisphere $\Omega$ centered around point $p$. A hemisphere can be described as half a sphere aligned around a surface's normal $n$:
+
+反射方程以辐照度为基础，而辐照度是我们测量的所有入射光的辐射率的总和。所以我们需要计算的就不只是单一入射光方向，而是以点 $p$ 为中心的半球 $\Omega$ 内所有入射光方向的辐射率总和。一个半球可以描述为与表面法线 $n$ 对齐的法向半球：
+
+<p align="center">
+  <img src="../../../../images/LearnOpenGL-PBR-Theory-Hemisphere.png">
+</p>
+
+To calculate the total of values inside an area or (in the case of a hemisphere) a volume, we use a mathematical construct called an integral denoted in the reflectance equation as $\int$ over all incoming directions $d\omega_i$ within the hemisphere $\Omega$ . An integral measures the area of a function, which can either be calculated analytically or numerically. As there is no analytical solution to both the render and reflectance equation, we'll want to numerically solve the integral discretely. This translates to taking the result of small discrete steps of the reflectance equation over the hemisphere $\Omega$ and averaging their results over the step size. This is known as the Riemann sum that we can roughly visualize in code as follows:
+
+要计算一个区域或（在半球的情况下）一个体积内数值的总和，我们可以利用一种称为积分的数学结构，在反射方程中表示为对半球 $\Omega$ 内所有入射方向 $d\omega_i$ 的 $\int$。积分测量的是一个函数的面积，可以通过分析或数值计算得出。由于渲染方程和反射方程都没有解析解，所以我们需要用数值求解离散积分。这个问题就转化为，在半球 $\Omega$ 上按小步长对反射方程进行离散求解，然后再根据步长大小将所得到的结果平均化。这就是所谓的黎曼和，我们可以在代码中将其过程大致可视化为如下：
+
+```glsl
+int steps = 100;
+float sum = 0.0f;
+vec3 P    = ...;
+vec3 Wo   = ...;
+vec3 N    = ...;
+float dW  = 1.0f / steps;
+for(int i = 0; i < steps; ++i) 
+{
+    vec3 Wi = getNextIncomingLightDir(i);
+    sum += Fr(P, Wi, Wo) * L(P, Wi) * dot(N, Wi) * dW;
+}
+```
+
+By scaling the steps by dW, the sum will equal the total area or volume of the integral function. The dW to scale each discrete step can be thought of as $d\omega_i$ in the reflectance equation. Mathematically $d\omega_i$ is the continuous symbol over which we calculate the integral, and while it does not directly relate to dW in code (as this is a discrete step of the Riemann sum), it helps to think of it this way. Keep in mind that taking discrete steps will always give us an approximation of the total area of the function. A careful reader will notice we can increase the accuracy of the Riemann Sum by increasing the number of steps.
+
+式 `sum += Fr(P, Wi, Wo) * L(P, Wi) * dot(N, Wi) * dW` 中，通过 dW 来对 `Fr(P, Wi, Wo) * L(P, Wi) * dot(N, Wi)` 部分进行缩放，其总和将等于积分函数的总面积或总体积。用来对每个离散值进行缩放的 dW 可以看作反射方程中的 $d\omega_i$。虽然在数学上，用来计算积分的 $d\omega_i$ 是一个代表连续值的符号，它与代码中的 dW 没有直接关系（因为 dW 是黎曼和的离散步长），但这样想还是有帮助的。请注意，使用离散步长计算得到的是函数总面积的一个近似值。细心的读者会发现，我们可以通过增加步数来提高黎曼和的精度。
+
+The reflectance equation sums up the radiance of all incoming light directions $\omega_i$ over the hemisphere $\Omega$ scaled by $f_r$ that hit point $p$ and returns the sum of reflected light $L_o$ in the viewer's direction. The incoming radiance can come from <a href="https://learnopengl.com/PBR/Lighting" target="_blank">light sources</a> as we're familiar with, or from an environment map measuring the radiance of every incoming direction as we'll discuss in the <a href="https://learnopengl.com/PBR/IBL/Diffuse-irradiance" target="_blank">IBL</a> chapters.
+
+反射方程将半球 $\Omega$ 上所有到达入射点 $p$ 的入射光方向 $\omega_i$ 的辐射率经 $f_r$ 缩放后相加，并返回观察者方向的反射光总和 $L_o$。入射辐射率可以来自我们熟悉的<a href="https://learnopengl.com/PBR/Lighting" target="_blank">光源</a>，也可以来自测量了每个入射方向辐射率的环境图，我们将在 <a href="https://learnopengl.com/PBR/IBL/Diffuse-irradiance" target="_blank">IBL</a> 章节中讨论。
+
+Now the only unknown left is the $f_r$ symbol known as the BRDF or bidirectional reflective distribution function that scales or weighs the incoming radiance based on the surface's material properties.
+
+现在剩下的唯一未知数就是 $f_r$ 符号了，它被称为 BRDF 或双向反射分布函数，它的作用是根据表面的材料属性对入射辐射率进行缩放或加权。
