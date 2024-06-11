@@ -10,4 +10,6 @@ description: 随手记录一些知识点以备查
 
 # [new 运算符重载](./OperatorNewAndDelete.md)
 
+# [std::underlying_type](./underlying_type.md)
+
 [back](./../../)
