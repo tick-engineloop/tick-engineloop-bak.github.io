@@ -285,7 +285,7 @@ $$
 
 Here $k_d$ is the earlier mentioned ratio of incoming light energy that gets refracted with $k_s$ being the ratio that gets reflected. The left side of the BRDF states the diffuse part of the equation denoted here as $f_{lambert}$. This is known as Lambertian diffuse similar to what we used for diffuse shading, which is a constant factor denoted as:
 
-这里的 $k_d$ 是前面提到的入射光能量中被折射部分所占的比率，$k_s$ 是被反射部分所占的比率。BRDF 左侧表示等式中的漫反射部分，这里用 $f_{lambert}$ 表示。这就是所谓的朗伯（或称兰伯特）漫反射，类似于我们在漫反射着色中使用的方法，它是一个常数因子，表示为：
+这里的 $k_d$ 是入射光能量中被折射部分所占的比率，$k_s$ 是被反射部分所占的比率。BRDF 等式右侧第一项是漫反射部分，这里用 $f_{lambert}$ 表示。这就是所谓的朗伯（或称兰伯特）漫反射，类似于我们在漫反射着色中使用的方法，它是一个常数因子，表示为：
 
 $$
 f_{lambert} = \frac{c}{\pi}
@@ -293,18 +293,44 @@ $$
 
 With $c$ being the albedo or surface color (think of the diffuse surface texture). The divide by pi is there to normalize the diffuse light as the earlier denoted integral that contains the BRDF is scaled by $\pi$ (we'll get to that in the <a href="https://learnopengl.com/PBR/IBL/Diffuse-irradiance" target="_blank">IBL</a> chapters).
 
+$c$ 是反照率或表面颜色（想想漫反射表面纹理）。除以 pi 是为了将漫射光归一化，因为前面含有 BRDF 的积分方程是受 $\pi$ 影响的（我们会在 <a href="https://learnopengl.com/PBR/IBL/Diffuse-irradiance" target="_blank">IBL</a> 的教程中探讨这个问题的）。
+
 <div class="note-box">
   <p>
-    You may wonder how this Lambertian diffuse relates to the diffuse lighting we've been using before: the surface color multiplied by the dot product between the surface's normal and the light direction. The dot product is still there, but moved out of the BRDF as we find $n \cdot \omega_i$ at the end of the $L_o$ integral.
+    You may wonder how this Lambertian diffuse relates to the diffuse lighting we've been using before: the surface color multiplied by the dot product between the surface's normal and the light direction. The dot product is still there, but moved out of the BRDF as we find $n \cdot \omega_i$ at the end of the $L_o$ integral.<br>
+    <br>
+    你也许会感到好奇，这个朗伯漫反射与我们之前使用的漫反射光照有什么关系：之前计算漫反射参数，是利用表面颜色乘以表面法线与光线方向之间的点积。现在点积 $n \cdot \omega_i$ 仍然还在，只是从 BRDF 中移出去了，移到了 $L_o$ 积分的末尾。
   </p>
 </div>
 
 There exist different equations for the diffuse part of the BRDF which tend to look more realistic, but are also more computationally expensive. As concluded by Epic Games however, the Lambertian diffuse is sufficient enough for most real-time rendering purposes.
 
+目前有许多不同类型的方程可以用来实现 BRDF 的漫反射部分，它们往往会使光照看起来更逼真，但随之计算成本也更高。不过，正如 Epic Games 总结的那样，朗伯漫反射已经能满足大多数实时渲染用途了。
+
 The specular part of the BRDF is a bit more advanced and is described as:
+
+BRDF 的镜面反射部分更为高级，其形式如下所示
 
 $$
 f_{CookTorrance} = \frac{DFG}{4(\omega_o \cdot n)(\omega_i \cdot n)}
 $$
 
 The Cook-Torrance specular BRDF is composed three functions and a normalization factor in the denominator. Each of the D, F and G symbols represent a type of function that approximates a specific part of the surface's reflective properties. These are defined as the normal <strong>D</strong>istribution function, the <strong>F</strong>resnel equation and the <strong>G</strong>eometry function:
+
+Cook-Torrance BRDF 的镜面反射部分由分子上的三个函数和分母上的标准化因子组成。字母 D，F 与 G 分别代表一种类型的函数，各个类型函数分别用来近似计算出表面反射特性的一个特定部分。三个函数分别是法线分布函数(<strong>D</strong>)，菲涅尔方程(<strong>F</strong>)，和几何函数(<strong>G</strong>)：
+
+* <strong>Normal distribution function</strong>: approximates the amount the surface's microfacets are aligned to the halfway vector, influenced by the roughness of the surface; this is the primary function approximating the microfacets.
+
+* <strong>法线分布函数</strong>：估算表面上微表面朝向与半程向量方向一致的微表面的数量，这个数量受到表面粗糙度的影响。这是用来近似微表面的主要函数。
+
+* <strong>Geometry function</strong>: describes the self-shadowing property of the microfacets. When a surface is relatively rough, the surface's microfacets can overshadow other microfacets reducing the light the surface reflects.
+
+* <strong>几何函数</strong>：描述了微表面自成阴影的属性。当一个表面相对比较粗糙的时候，表面上的一些微表面有可能挡住其他的微表面从而减少了表面所反射的光线。
+
+* <strong>Fresnel equation</strong>: The Fresnel equation describes the ratio of surface reflection at different surface angles.
+
+* <strong>菲涅尔方程</strong>：菲涅尔方程描述了不同表面角度下的表面反射率。
+
+Each of these functions are an approximation of their physics equivalents and you'll find more than one version of each that aims to approximate the underlying physics in different ways; some more realistic, others more efficient. It is perfectly fine to pick whatever approximated version of these functions you want to use. Brian Karis from Epic Games did a great deal of research on the multiple types of approximations here. We're going to pick the same functions used by Epic Game's Unreal Engine 4 which are the Trowbridge-Reitz GGX for D, the Fresnel-Schlick approximation for F, and the Smith's Schlick-GGX for G.
+
+这些函数中的每一个都是其物理等价物的近似值，你会发现每一个函数都有不止一个版本，旨在以不同的方式近似底层物理；有些更逼真，有些更高效。你完全可以选择你想使用的这些函数的任何近似版本。来自 Epic Games 的布莱恩-卡里斯（Brian Karis）在这里对多种类型的近似值进行了大量研究。我们将选择与 Epic Game 的虚幻引擎 4 相同的函数，即 D 的 Trowbridge-Reitz GGX、F 的 Fresnel-Schlick 近似值和 G 的 Smith's Schlick-GGX。
