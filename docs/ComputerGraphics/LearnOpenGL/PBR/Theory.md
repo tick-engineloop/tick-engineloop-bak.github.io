@@ -264,3 +264,47 @@ The reflectance equation sums up the radiance of all incoming light directions $
 Now the only unknown left is the $f_r$ symbol known as the BRDF or bidirectional reflective distribution function that scales or weighs the incoming radiance based on the surface's material properties.
 
 现在剩下的唯一未知数就是 $f_r$ 符号了，它被称为 BRDF 或双向反射分布函数，它的作用是根据表面的材料属性对入射辐射率进行缩放或加权。
+
+# BRDF
+
+The BRDF, or bidirectional reflective distribution function, is a function that takes as input the incoming (light) direction $\omega_i$, the outgoing (view) direction $\omega_o$, the surface normal $n$, and a surface parameter $a$ that represents the microsurface's roughness. The BRDF approximates how much each individual light ray $\omega_i$ contributes to the final reflected light of an opaque surface given its material properties. For instance, if the surface has a perfectly smooth surface (~like a mirror) the BRDF function would return 0.0 for all incoming light rays $\omega_i$ except the one ray that has the same (reflected) angle as the outgoing ray $\omega_o$ at which the function returns 1.0.
+
+BRDF，即双向反射分布函数，以入射（光线）方向 $\omega_i$、出射（视线）方向 $\omega_o$、表面法线 $n$ 和表示微表面粗糙度的表面参数 $a$ 作为输入。BRDF 近似表示了一个给定材质属性的不透明表面上每束入射光线 $\omega_i$ 对最终反射出来光线 $\omega_o$ 的贡献度。例如，如果表面是完全光滑的（就像一面镜子），那么只有在入射光线的入射角与出射光线 $\omega_o$ 的反射角相同时，该函数才会返回 1.0，对于剩余所有其他入射角度光线 $\omega_i$，BRDF 函数都将返回 0.0。
+
+A BRDF approximates the material's reflective and refractive properties based on the previously discussed microfacet theory. For a BRDF to be physically plausible it has to respect the law of energy conservation i.e. the sum of reflected light should never exceed the amount of incoming light. Technically, Blinn-Phong is considered a BRDF taking the same $\omega_i$ and $\omega_o$ as inputs. However, Blinn-Phong is not considered physically based as it doesn't adhere to the energy conservation principle. There are several physically based BRDFs out there to approximate the surface's reaction to light. However, almost all real-time PBR render pipelines use a BRDF known as the Cook-Torrance BRDF.
+
+BRDF 是根据微表面理论对材质的反射和折射属性进行的近似分析。要使 BRDF 在物理上合理，就必须遵守能量守恒定律，即反射光能量的总和绝对不能超过入射光能量的总和。从技术上讲，同样采用 $\omega_i$ 和 $\omega_o$ 作为输入的 Blinn-Phong 也被认为是一种 BRDF。但是，Blinn-Phong 并不被认为是基于物理的，因为它不遵守能量守恒原则。有几种基于物理的 BRDF 可以近似地反映表面对光线的反应。不过，几乎所有的实时 PBR 渲染管线都使用 Cook-Torrance(库克-托伦斯) BRDF。
+
+The Cook-Torrance BRDF contains both a diffuse and specular part:
+
+Cook-Torrance BRDF 包含漫反射和镜面反射两个部分：
+
+$$
+f_r = k_d f_{lambert} +  k_s f_{cook-torrance}
+$$
+
+Here $k_d$ is the earlier mentioned ratio of incoming light energy that gets refracted with $k_s$ being the ratio that gets reflected. The left side of the BRDF states the diffuse part of the equation denoted here as $f_{lambert}$. This is known as Lambertian diffuse similar to what we used for diffuse shading, which is a constant factor denoted as:
+
+这里的 $k_d$ 是前面提到的入射光能量中被折射部分所占的比率，$k_s$ 是被反射部分所占的比率。BRDF 左侧表示等式中的漫反射部分，这里用 $f_{lambert}$ 表示。这就是所谓的朗伯（或称兰伯特）漫反射，类似于我们在漫反射着色中使用的方法，它是一个常数因子，表示为：
+
+$$
+f_{lambert} = \frac{c}{\pi}
+$$
+
+With $c$ being the albedo or surface color (think of the diffuse surface texture). The divide by pi is there to normalize the diffuse light as the earlier denoted integral that contains the BRDF is scaled by $\pi$ (we'll get to that in the <a href="https://learnopengl.com/PBR/IBL/Diffuse-irradiance" target="_blank">IBL</a> chapters).
+
+<div class="note-box">
+  <p>
+    You may wonder how this Lambertian diffuse relates to the diffuse lighting we've been using before: the surface color multiplied by the dot product between the surface's normal and the light direction. The dot product is still there, but moved out of the BRDF as we find $n \cdot \omega_i$ at the end of the $L_o$ integral.
+  </p>
+</div>
+
+There exist different equations for the diffuse part of the BRDF which tend to look more realistic, but are also more computationally expensive. As concluded by Epic Games however, the Lambertian diffuse is sufficient enough for most real-time rendering purposes.
+
+The specular part of the BRDF is a bit more advanced and is described as:
+
+$$
+f_{CookTorrance} = \frac{DFG}{4(\omega_o \cdot n)(\omega_i \cdot n)}
+$$
+
+The Cook-Torrance specular BRDF is composed three functions and a normalization factor in the denominator. Each of the D, F and G symbols represent a type of function that approximates a specific part of the surface's reflective properties. These are defined as the normal <strong>D</strong>istribution function, the <strong>F</strong>resnel equation and the <strong>G</strong>eometry function:
