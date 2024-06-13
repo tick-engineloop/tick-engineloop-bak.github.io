@@ -459,10 +459,130 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
 
 ## Fresnel equation
 
-The Fresnel equation (pronounced as Freh-nel) describes the ratio of light that gets reflected over the light that gets refracted, which varies over the angle we're looking at a surface. The moment light hits a surface, based on the surface-to-view angle, the Fresnel equation tells us the percentage of light that gets reflected. From this ratio of reflection and the energy conservation principle we can directly obtain the refracted portion of light.
+Look at the image below and notice how the brightness of the tabletop changes. 
 
-菲涅尔方程（发音为 Freh-nel）描述的是反射光与折射光的比例，这个比例会随着我们观察表面的角度而变化。在光线照射到表面的瞬间，根据表面与视线的角度，菲涅尔方程可以告诉我们反射光的比例。根据这个反射比例和能量守恒原理，我们可以直接得出光的折射部分。
+当我们以不同的观察角度看向光滑桌面时，桌面亮度有如下图的变化。
 
-Every surface or material has a level of base reflectivity when looking straight at its surface, but when looking at the surface from an angle all reflections become more apparent compared to the surface's base reflectivity. You can check this for yourself by looking at your (presumably) wooden/metallic desk which has a certain level of base reflectivity from a perpendicular view angle, but by looking at your desk from an almost 90 degree angle you'll see the reflections become much more apparent. All surfaces theoretically fully reflect light if seen from perfect 90-degree angles. This phenomenon is known as Fresnel and is described by the Fresnel equation.
+<p align="center">
+  <img src="../../../../images/LearnOpenGL-PBR-Theory-FresnelAnimation.gif">
+</p>
 
-光线垂直照射到表面或材质上时，发生一部分反射，此时对应的反射率称为基础反射率。如果以一定的角度往平面上看的时候所有反光都会变得明显起来。你可以通过观察你的木制/金属书桌（大概）来验证这一点，从垂直视角看，此时只有最基础的反射，但从近乎 90 度的角度（指视线和法线的夹角，即接近平行桌面的视角）看你的书桌，你会发现反射变得更加明显。如果从完全 90 度的角度观察，理论上所有表面都能完全反射光线。这种现象被称为菲涅尔现象，用菲涅尔方程来描述。
+This phenomenon is known as Fresnel Effect and is described by the Fresnel equation. The Fresnel equation (pronounced as Freh-nel) describes the ratio of light that gets reflected over the light that gets refracted, which varies over the angle we're looking at a surface. The moment light hits a surface, based on the surface-to-view angle, the Fresnel equation tells us the percentage of light that gets reflected. From this ratio of reflection and the energy conservation principle we can directly obtain the refracted portion of light.
+
+这种现象被称为菲涅尔效应，用菲涅尔方程来描述。菲涅尔方程（发音为 Freh-nel）描述的是反射光与折射光的比例，这个比例会随着我们观察表面的角度而变化。在光线照射到表面的瞬间，根据表面与视线的角度，菲涅尔方程可以告诉我们反射光的比例。根据这个反射比例和能量守恒原理，我们可以直接得出光的折射部分。
+
+Every surface or material has a level of base reflectivity when looking straight at its surface, but when looking at the surface from an angle all reflections become more apparent compared to the surface's base reflectivity. You can check this for yourself by looking at your (presumably) wooden/metallic desk which has a certain level of base reflectivity from a perpendicular view angle, but by looking at your desk from an almost 90 degree angle you'll see the reflections become much more apparent. All surfaces theoretically fully reflect light if seen from perfect 90-degree angles. 
+
+光线垂直照射到表面或材质上时，会发生一部分反射，此时对应的反射率称为基础反射率。如果以非垂直的角度往平面上看，所有反光都会变得明显起来，并随着角度慢慢变大，反光会越来越明显。你可以通过观察你的木制/金属书桌（大概）来验证这一点，从垂直视角看，此时只有最基础的反射，但从近乎 90 度的角度（指视线和法线的夹角，即接近平行桌面的视角）看你的书桌，你会发现反射变得更加明显。如果从完全 90 度的角度观察，理论上所有表面都能完全反射光线。
+
+<p align="center">
+  <img src="../../../../images/LearnOpenGL-PBR-Theory-BoxSideView.jpg">
+</p>
+
+The Fresnel equation is a rather complex equation, but luckily the Fresnel equation can be approximated using the Fresnel-Schlick approximation:
+
+菲涅尔方程是一个相当复杂的方程式，不过幸运的是菲涅尔方程可以用 Fresnel-Schlick 近似法求得近似解：
+
+$$
+F_{Schlick}(h, v, F_0) = 
+    F_0 + (1 - F_0) ( 1 - (h \cdot v))^5 	
+$$
+
+$F_0$ represents the base reflectivity of the surface, which we calculate using something called the <em>indices of refraction</em> or IOR. As you can see on a sphere surface, the more we look towards the surface's grazing angles (with the halfway-view angle reaching 90 degrees), the stronger the Fresnel and thus the reflections: 
+
+$F_0$ 是表面的基本反射率，这可以由折射率或 IOR 计算得出。正如你在球面上所看到的，我们越看向表面的掠射角（此时视线和表面法线的夹角接近90度），菲涅尔现象越明显，因此反射也就越强：
+
+<p align="center">
+  <img src="../../../../images/LearnOpenGL-PBR-Theory-FresnelSphere.png">
+</p>
+
+<div class="note-box">
+  <p>
+    掠射角（glancing angle）指的是投射光线与表面之间的夹角。掠射通常指的是光从一种介质向另一种介质传播时，入射角接近于 90° 的情况。这里需要注意的是，掠射一定要从光疏介质（折射率小）向光密介质（折射率大）传播，且入射角要极其接近于 90°。
+  </p>
+</div>
+
+There are a few subtleties involved with the Fresnel equation. One is that the Fresnel-Schlick approximation is only really defined for dielectric or non-metal surfaces. For conductor surfaces (metals), calculating the base reflectivity with indices of refraction doesn't properly hold and we need to use a different Fresnel equation for conductors altogether. As this is inconvenient, we further approximate by pre-computing the surface's response at normal incidence ($F_0$) at a 0 degree angle as if looking directly onto a surface. We interpolate this value based on the view angle, as per the Fresnel-Schlick approximation, such that we can use the same equation for both metals and non-metals.
+
+菲涅尔方程还存在一些细微的问题。其一，菲涅尔-施利克近似法只针对电介质或非金属表面。对于导体（金属）表面，用折射率计算基础反射率并不正确，我们需要对导体使用一种不同的菲涅尔方程。对于电介质和导体，由于使用两种不同的方程，不能统一处理的话这样很不方便，所以我们预计算出平面对于法向入射（入射角为 0 度，直接垂直看向表面）的结果（$F_0$）。按照菲涅尔-施利克近似法，我们根据视角对该值进行插值，这样我们就可以对金属和非金属使用相同的方程了。
+
+The surface's response at normal incidence, or the base reflectivity, can be found in large databases like <a href="http://refractiveindex.info/" target="_blank">these</a> with some of the more common values listed below as taken from Naty Hoffman's course notes:
+
+平面对于法向入射的响应或者说基础反射率可以在一些大型数据库中找到，比如<a href="http://refractiveindex.info/" target="_blank">这个</a>。下面列举了一些从 Naty Hoffman 的课程讲义中所得到的常见数值：
+
+<table>
+  <tr>
+  	<th>Material</th>
+  	<th>\(F_0\) (Linear)</th>
+  	<th>\(F_0\) (sRGB)</th>
+  	<th>Color</th>
+  </tr>  
+  <tr>
+    <td>Water</td>
+    <td><code>(0.02, 0.02, 0.02)</code></td>
+    <td><code>&nbsp;(0.15, 0.15, 0.15)</code>&nbsp;&nbsp;</td>
+ 	<td style="background-color: #262626"></td> 
+  </tr>
+  <tr>
+    <td>Plastic / Glass (Low)</td>
+    <td><code>(0.03, 0.03, 0.03)</code></td>
+    <td><code>(0.21, 0.21, 0.21)</code></td>
+ 	<td style="background-color: #363636"></td> 
+  </tr>
+  <tr>
+    <td>Plastic High</td>
+    <td><code>(0.05, 0.05, 0.05)</code></td>
+    <td><code>(0.24, 0.24, 0.24)</code></td>
+ 	<td style="background-color: #3D3D3D"></td> 
+  </tr>
+  <tr>
+    <td>Glass (high) / Ruby</td>
+    <td><code>(0.08, 0.08, 0.08)</code></td>
+    <td><code>(0.31, 0.31, 0.31)</code></td>
+ 	<td style="background-color: #4F4F4F"></td> 
+  </tr>
+  <tr>
+    <td>Diamond</td>
+    <td><code>(0.17, 0.17, 0.17)</code></td>
+    <td><code>(0.45, 0.45, 0.45)</code></td>
+ 	<td style="background-color: #737373"></td> 
+  </tr>
+  <tr>
+    <td>Iron</td>
+    <td><code>(0.56, 0.57, 0.58)</code></td>
+    <td><code>(0.77, 0.78, 0.78)</code></td>
+ 	<td style="background-color: #C5C8C8"></td> 
+  </tr>
+  <tr>
+    <td>Copper</td>
+    <td><code>(0.95, 0.64, 0.54)</code></td>
+    <td><code>(0.98, 0.82, 0.76)</code></td>
+ 	<td style="background-color: #FBD2C3"></td> 
+  </tr>
+  <tr>
+    <td>Gold</td>
+    <td><code>(1.00, 0.71, 0.29)</code></td>
+    <td><code>(1.00, 0.86, 0.57)</code></td>
+ 	<td style="background-color: #FFDC92"></td> 
+  </tr>
+  <tr>
+    <td>Aluminium</td>
+    <td><code>(0.91, 0.92, 0.92)</code></td>
+    <td><code>(0.96, 0.96, 0.97)</code></td>
+ 	<td style="background-color: #F6F6F8"></td> 
+  </tr>
+  <tr>
+    <td>Silver</td>
+    <td><code>(0.95, 0.93, 0.88)</code></td>
+    <td><code>(0.98, 0.97, 0.95)</code></td>
+ 	<td style="background-color: #FBF8F3"></td> 
+  </tr>
+ 
+</table>
+
+> ## References:
+>
+> * [Understanding the Fresnel Effect](https://www.dorian-iten.com/fresnel/)
+>
+
+[back](./)
