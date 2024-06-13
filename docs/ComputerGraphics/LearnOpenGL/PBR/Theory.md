@@ -65,7 +65,7 @@ $$
 
 The more the microfacets are aligned to the halfway vector, the sharper and stronger the specular reflection. Together with a roughness parameter that varies between 0 and 1, we can statistically approximate the alignment of the microfacets:
 
-微表面的朝向与半程向量的方向越是一致，镜面反射就越锐利、越强烈。结合在 0 和 1 之间变化的粗糙度参数，我们可以从统计学角度对微表面的排列情况进行近似：
+微表面的朝向与半程向量的方向越是一致（即微表面的法线与半程向量越是一致），镜面反射就越锐利、越强烈。结合在 0 和 1 之间变化的粗糙度参数，我们可以从统计学角度对微表面的排列情况进行近似：
 
 <p align="center">
   <img src="../../../../images/LearnOpenGL-PBR-Theory-NDF.png">
@@ -285,7 +285,7 @@ $$
 
 Here $k_d$ is the earlier mentioned ratio of incoming light energy that gets refracted with $k_s$ being the ratio that gets reflected. The left side of the BRDF states the diffuse part of the equation denoted here as $f_{lambert}$. This is known as Lambertian diffuse similar to what we used for diffuse shading, which is a constant factor denoted as:
 
-这里的 $k_d$ 是入射光能量中被折射部分所占的比率，$k_s$ 是被反射部分所占的比率。BRDF 等式右侧第一项是漫反射部分，这里用 $f_{lambert}$ 表示。这就是所谓的朗伯（或称兰伯特）漫反射，类似于我们在漫反射着色中使用的方法，它是一个常数因子，表示为：
+这里的 $k_d$ 是入射光能量中被折射部分所占的比率，$k_s$ 是被反射部分所占的比率。BRDF 等式右侧第一项是漫反射部分，这里用 $f_{lambert}$ 表示。这就是所谓的朗伯（或称兰伯特）漫反射，类似于我们在漫反射着色中使用的方法，它是一个常数因子，被表示为：
 
 $$
 f_{lambert} = \frac{c}{\pi}
@@ -293,7 +293,7 @@ $$
 
 With $c$ being the albedo or surface color (think of the diffuse surface texture). The divide by pi is there to normalize the diffuse light as the earlier denoted integral that contains the BRDF is scaled by $\pi$ (we'll get to that in the <a href="https://learnopengl.com/PBR/IBL/Diffuse-irradiance" target="_blank">IBL</a> chapters).
 
-$c$ 是反照率或表面颜色（想想漫反射表面纹理）。除以 pi 是为了将漫射光归一化，因为前面含有 BRDF 的积分方程是受 $\pi$ 影响的（我们会在 <a href="https://learnopengl.com/PBR/IBL/Diffuse-irradiance" target="_blank">IBL</a> 的教程中探讨这个问题的）。
+$c$ 是反照率或表面颜色（想想漫反射表面纹理）。除以 pi 是为了将漫反射光归一化，因为前面含有 BRDF 的积分方程是受 $\pi$ 影响的（我们会在 <a href="https://learnopengl.com/PBR/IBL/Diffuse-irradiance" target="_blank">IBL</a> 的教程中探讨这个问题的）。
 
 <div class="note-box">
   <p>
@@ -317,15 +317,15 @@ $$
 
 The Cook-Torrance specular BRDF is composed three functions and a normalization factor in the denominator. Each of the D, F and G symbols represent a type of function that approximates a specific part of the surface's reflective properties. These are defined as the normal <strong>D</strong>istribution function, the <strong>F</strong>resnel equation and the <strong>G</strong>eometry function:
 
-Cook-Torrance BRDF 的镜面反射部分由分子上的三个函数和分母上的标准化因子组成。字母 D，F 与 G 分别代表一种类型的函数，各个类型函数分别用来近似计算出表面反射特性的一个特定部分。三个函数分别是法线分布函数(<strong>D</strong>)，菲涅尔方程(<strong>F</strong>)，和几何函数(<strong>G</strong>)：
+Cook-Torrance BRDF 的镜面反射部分由分子上的三个函数和分母上的标准化因子组成。字母 D，F 与 G 分别代表一种类型的函数，各个类型函数分别用来近似计算出表面反射特性中的一个特定部分。三个函数分别是法线分布函数(<strong>D</strong>)，菲涅尔方程(<strong>F</strong>)，和几何函数(<strong>G</strong>)：
 
 * <strong>Normal distribution function</strong>: approximates the amount the surface's microfacets are aligned to the halfway vector, influenced by the roughness of the surface; this is the primary function approximating the microfacets.
 
-* <strong>法线分布函数</strong>：估算表面上微表面朝向与半程向量方向一致的微表面的数量，这个数量受到表面粗糙度的影响。这是用来近似微表面的主要函数。
+* <strong>法线分布函数</strong>：估算物体表面上朝向与半程向量方向一致的微表面的数量，这个数量受到表面粗糙度的影响。法线分布函数是用来近似微表面的主要函数。
 
 * <strong>Geometry function</strong>: describes the self-shadowing property of the microfacets. When a surface is relatively rough, the surface's microfacets can overshadow other microfacets reducing the light the surface reflects.
 
-* <strong>几何函数</strong>：描述了微表面自成阴影的属性。当一个表面相对比较粗糙的时候，表面上的一些微表面有可能挡住其他的微表面从而减少了表面所反射的光线。
+* <strong>几何函数</strong>：描述了微表面自阴影属性。当一个表面相对比较粗糙的时候，表面上的一些微表面有可能挡住其他的微表面，从而减少了表面所反射的光线数量。
 
 * <strong>Fresnel equation</strong>: The Fresnel equation describes the ratio of surface reflection at different surface angles.
 
@@ -333,4 +333,136 @@ Cook-Torrance BRDF 的镜面反射部分由分子上的三个函数和分母上�
 
 Each of these functions are an approximation of their physics equivalents and you'll find more than one version of each that aims to approximate the underlying physics in different ways; some more realistic, others more efficient. It is perfectly fine to pick whatever approximated version of these functions you want to use. Brian Karis from Epic Games did a great deal of research on the multiple types of approximations here. We're going to pick the same functions used by Epic Game's Unreal Engine 4 which are the Trowbridge-Reitz GGX for D, the Fresnel-Schlick approximation for F, and the Smith's Schlick-GGX for G.
 
-这些函数中的每一个都是其物理等价物的近似值，你会发现每一个函数都有不止一个版本，旨在以不同的方式近似底层物理；有些更逼真，有些更高效。你完全可以选择你想使用的这些函数的任何近似版本。来自 Epic Games 的布莱恩-卡里斯（Brian Karis）在这里对多种类型的近似值进行了大量研究。我们将选择与 Epic Game 的虚幻引擎 4 相同的函数，即 D 的 Trowbridge-Reitz GGX、F 的 Fresnel-Schlick 近似值和 G 的 Smith's Schlick-GGX。
+这些函数中的每一个都是其物理世界中真实情况的等价近似，而且你会发现每一个函数都有不止一种实现形式，但是不管是什么样的形式，最终目标都是去近似底层实际物理情况；有些实现方式可以使镜面反射更逼真，有些则更高效。你完全可以自由选择你想使用的这些函数的任何近似版本。在这方面，来自 Epic Games 的布莱恩-卡里斯（Brian Karis）对多种类型的近似实现方法进行了大量研究。我们将选择与 Epic Game 的虚幻引擎 4 相同的函数，即 D 使用 "Trowbridge-Reitz GGX"、F 使用 “Fresnel-Schlick 近似” 和 G 使用 "Smith's Schlick-GGX"。
+
+## Normal distribution function
+
+The normal distribution function $D$ statistically approximates the relative surface area of microfacets exactly aligned to the (halfway) vector $h$. There are a multitude of NDFs that statistically approximate the general alignment of the microfacets given some roughness parameter and the one we'll be using is known as the Trowbridge-Reitz GGX:
+
+法线分布函数 $D$ 从统计学角度近似地表示了朝向与（半程）向量 $h$ 一致的微表面的相对表面积。举例来说，如果我们的物体表面上有35%的微表面它的朝向与 $h$ 方向完全一致，那么 NDF 的值就是 0.35。有许多类型 NDF 可以在给定一些粗糙度参数的情况下统计出微表面一般排列的近似值，我们接下来要使用的 NDF 是 Trowbridge-Reitz GGX：
+
+$$
+NDF_{GGX TR}(n, h, \alpha) = \frac{\alpha^2}{\pi((n \cdot h)^2 (\alpha^2 - 1) + 1)^2}
+$$
+
+Here $h$ is the halfway vector to measure against the surface's microfacets, with $a$ being a measure of the surface's roughness. If we take $h$ as the halfway vector between the surface normal and light direction over varying roughness parameters we get the following visual result:
+
+这里的 $h$ 是用来与物体表面的微表面做比较用的半程向量，$a$ 是表面粗糙度的测量值。如果将 $h$ 作为表面法线和光照方向之间的半程向量，在改变粗糙度参数的情况下，我们会得到以下直观的镜面反射结果：
+
+<p align="center">
+  <img src="../../../../images/LearnOpenGL-PBR-Theory-NDF.png">
+</p>
+
+When the roughness is low (thus the surface is smooth), a highly concentrated number of microfacets are aligned to halfway vectors over a small radius. Due to this high concentration, the NDF displays a very bright spot. On a rough surface however, where the microfacets are aligned in much more random directions, you'll find a much larger number of halfway vectors $h$ somewhat aligned to the microfacets (but less concentrated), giving us the more grayish results.
+
+当粗糙度较低时（因此表面是光滑的），与半程向量朝向一致的微表面会高度集中在一个较小半径的区域内。这样的话朝向观察者进行反射的微表面集中在一起，镜面反射会呈现为非常明亮的光斑。然而，在粗糙的表面上，微表面的排列方向更加随机，你将会发现与 $h$ 向量朝向一致的微平面分布在一个大得多的半径范围内，朝向观察者进行反射的微表面不那么集中了，比较分散，这让镜面反射效果显得更加灰暗。
+
+In GLSL the Trowbridge-Reitz GGX normal distribution function translates to the following code:
+
+在 GLSL 中，Trowbridge-Reitz GGX 法线分布函数可转换为以下代码：
+
+```glsl
+float DistributionGGX(vec3 N, vec3 H, float a)
+{
+    float a2     = a*a;
+    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+	
+    float nom    = a2;
+    float denom  = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom        = PI * denom * denom;
+	
+    return nom / denom;
+}
+```
+
+# Geometry function
+
+The geometry function statistically approximates the relative surface area where its micro surface-details overshadow each other, causing light rays to be occluded.
+
+几何函数从统计学角度近似地计算了相互遮挡的微表面的相对表面积，这种相互遮蔽会导致光线被遮挡，无法反射到观察者的位置。
+
+<p align="center">
+  <img src="../../../../images/LearnOpenGL-PBR-Theory-GeometryShadowing.png">
+</p>
+
+Similar to the NDF, the Geometry function takes a material's roughness parameter as input with rougher surfaces having a higher probability of overshadowing microfacets. The geometry function we will use is a combination of the GGX and Schlick-Beckmann approximation known as Schlick-GGX:
+
+与 NDF 类似，几何函数将材料的粗糙度参数作为输入，较粗糙的表面更有可能在微表面间产生遮盖。我们将使用的几何函数是 GGX 和 “Schlick-Beckmann 近似” 的结合体，称为 Schlick-GGX：
+
+$$
+G_{SchlickGGX}(n, v, k) 
+       		 = 
+   		\frac{n \cdot v}
+    	{(n \cdot v)(1 - k) + k }
+$$
+
+Here $k$ is a remapping of $\alpha$ based on whether we're using the geometry function for either direct lighting or IBL lighting:
+
+这里的 $k$ 是 $\alpha$ 的重映射，具体采用何种映射方式，取决于我们在使用几何函数时，是针对直接光照还是 IBL 光照：
+
+$$
+k_{direct} = \frac{(\alpha + 1)^2}{8}
+$$
+
+$$
+k_{IBL} = \frac{\alpha^2}{2}
+$$
+
+Note that the value of $\alpha$ may differ based on how your engine translates roughness to $\alpha$. In the following chapters we'll extensively discuss how and where this remapping becomes relevant. 
+
+请注意，$\alpha$ 的值可能因你的渲染引擎采用何种方式将粗糙度转换为 $\alpha$ 而异。在接下来的章节中，我们将会展开来讨论如何以及在何处进行重映射。
+
+To effectively approximate the geometry we need to take account of both the view direction (geometry obstruction) and the light direction vector (geometry shadowing). We can take both into account using Smith's method:
+
+为了有效地近似物体表面几何特性，我们需要同时考虑视线方向（几何体阻挡）和光线方向向量（几何体阴影）。我们可以使用史密斯方法将两者都考虑在内：
+
+$$
+G(n, v, l, k) = G_{sub}(n, v, k) G_{sub}(n, l, k) 
+$$
+
+Using Smith's method with Schlick-GGX as $G_{sub}$ gives the following visual appearance over varying roughness R:
+
+使用史密斯方法，以 Schlick-GGX 作为 $G_{sub}$，在粗糙度 R 不同的情况下，可以得到如下视觉效果：
+
+<p align="center">
+  <img src="../../../../images/LearnOpenGL-PBR-Theory-Geometry.png">
+</p>
+
+The geometry function is a multiplier between [0.0, 1.0] with 1.0 (or white) measuring no microfacet shadowing, and 0.0 (or black) complete microfacet shadowing.
+
+几何函数是介于 [0.0, 1.0] 之间的乘数，1.0（或白色）表示没有微表面阴影，0.0（或黑色）表示微表面彻底被遮挡。
+
+In GLSL the geometry function translates to the following code:
+
+使用 GLSL 编写的几何函数代码如下：
+
+```glsl
+float GeometrySchlickGGX(float NdotV, float k)
+{
+    float nom   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+	
+    return nom / denom;
+}
+  
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float k)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx1 = GeometrySchlickGGX(NdotV, k);
+    float ggx2 = GeometrySchlickGGX(NdotL, k);
+	
+    return ggx1 * ggx2;
+}
+```
+
+## Fresnel equation
+
+The Fresnel equation (pronounced as Freh-nel) describes the ratio of light that gets reflected over the light that gets refracted, which varies over the angle we're looking at a surface. The moment light hits a surface, based on the surface-to-view angle, the Fresnel equation tells us the percentage of light that gets reflected. From this ratio of reflection and the energy conservation principle we can directly obtain the refracted portion of light.
+
+菲涅尔方程（发音为 Freh-nel）描述的是反射光与折射光的比例，这个比例会随着我们观察表面的角度而变化。在光线照射到表面的瞬间，根据表面与视线的角度，菲涅尔方程可以告诉我们反射光的比例。根据这个反射比例和能量守恒原理，我们可以直接得出光的折射部分。
+
+Every surface or material has a level of base reflectivity when looking straight at its surface, but when looking at the surface from an angle all reflections become more apparent compared to the surface's base reflectivity. You can check this for yourself by looking at your (presumably) wooden/metallic desk which has a certain level of base reflectivity from a perpendicular view angle, but by looking at your desk from an almost 90 degree angle you'll see the reflections become much more apparent. All surfaces theoretically fully reflect light if seen from perfect 90-degree angles. This phenomenon is known as Fresnel and is described by the Fresnel equation.
+
+光线垂直照射到表面或材质上时，发生一部分反射，此时对应的反射率称为基础反射率。如果以一定的角度往平面上看的时候所有反光都会变得明显起来。你可以通过观察你的木制/金属书桌（大概）来验证这一点，从垂直视角看，此时只有最基础的反射，但从近乎 90 度的角度（指视线和法线的夹角，即接近平行桌面的视角）看你的书桌，你会发现反射变得更加明显。如果从完全 90 度的角度观察，理论上所有表面都能完全反射光线。这种现象被称为菲涅尔现象，用菲涅尔方程来描述。
