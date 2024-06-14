@@ -345,9 +345,9 @@ $$
 NDF_{GGX TR}(n, h, \alpha) = \frac{\alpha^2}{\pi((n \cdot h)^2 (\alpha^2 - 1) + 1)^2}
 $$
 
-Here $h$ is the halfway vector to measure against the surface's microfacets, with $a$ being a measure of the surface's roughness. If we take $h$ as the halfway vector between the surface normal and light direction over varying roughness parameters we get the following visual result:
+Here $h$ is the halfway vector to measure against the surface's microfacets, with $a$ being a measure of the surface's roughness. If we take $h$ as the halfway vector between the view direction and light direction over varying roughness parameters we get the following visual result:
 
-这里的 $h$ 是用来与物体表面的微表面做比较用的半程向量，$a$ 是表面粗糙度的测量值。如果将 $h$ 作为表面法线和光照方向之间的半程向量，在改变粗糙度参数的情况下，我们会得到以下直观的镜面反射结果：
+这里的 $h$ 是用来与物体表面的微表面做比较用的半程向量，$a$ 是表面粗糙度的测量值。点[此处](https://www.desmos.com/calculator/8otf8w37ke?lang=zh-CN)可查看 Trowbridge-Reitz GGX desmos 曲线。如果将 $h$ 作为观察方向和光照方向之间的半程向量，在改变粗糙度参数的情况下，我们会得到以下直观的镜面反射结果：
 
 <p align="center">
   <img src="../../../../images/LearnOpenGL-PBR-Theory-NDF.png">
@@ -485,7 +485,7 @@ The Fresnel equation is a rather complex equation, but luckily the Fresnel equat
 
 $$
 F_{Schlick}(h, v, F_0) = 
-    F_0 + (1 - F_0) ( 1 - (h \cdot v))^5 	
+    F_0 + (1 - F_0) ( 1 - (n \cdot v))^5 	
 $$
 
 $F_0$ represents the base reflectivity of the surface, which we calculate using something called the <em>indices of refraction</em> or IOR. As you can see on a sphere surface, the more we look towards the surface's grazing angles (with the halfway-view angle reaching 90 degrees), the stronger the Fresnel and thus the reflections: 
@@ -504,21 +504,21 @@ $F_0$ 是表面的基本反射率，这可以由折射率或 IOR 计算得出。
 
 There are a few subtleties involved with the Fresnel equation. One is that the Fresnel-Schlick approximation is only really defined for dielectric or non-metal surfaces. For conductor surfaces (metals), calculating the base reflectivity with indices of refraction doesn't properly hold and we need to use a different Fresnel equation for conductors altogether. As this is inconvenient, we further approximate by pre-computing the surface's response at normal incidence ($F_0$) at a 0 degree angle as if looking directly onto a surface. We interpolate this value based on the view angle, as per the Fresnel-Schlick approximation, such that we can use the same equation for both metals and non-metals.
 
-菲涅尔方程还存在一些细微的问题。其一，菲涅尔-施利克近似法只针对电介质或非金属表面。对于导体（金属）表面，用折射率计算基础反射率并不正确，我们需要对导体使用一种不同的菲涅尔方程。对于电介质和导体，由于使用两种不同的方程，不能统一处理的话这样很不方便，所以我们预计算出平面对于法向入射（入射角为 0 度，直接垂直看向表面）的结果（$F_0$）。按照菲涅尔-施利克近似法，我们根据视角对该值进行插值，这样我们就可以对金属和非金属使用相同的方程了。
+菲涅尔方程还存在一些细微的问题。其一，菲涅尔-施利克近似法只针对电介质或非金属表面。对于导体（金属）表面，用折射率计算基础反射率并不正确，我们需要对导体使用一种不同的菲涅尔方程。对于电介质和导体，由于使用两种不同的方程，不能统一处理的话这样很不方便，所以我们预计算出平面对于法向入射（入射角为 0 度，直接垂直看向表面）的结果（$F_0$）。按照菲涅尔-施利克近似法，根据视角对该值进行插值，这样我们就可以对金属和非金属使用相同的方程了。
 
 The surface's response at normal incidence, or the base reflectivity, can be found in large databases like <a href="http://refractiveindex.info/" target="_blank">these</a> with some of the more common values listed below as taken from Naty Hoffman's course notes:
 
 平面对于法向入射的响应或者说基础反射率可以在一些大型数据库中找到，比如<a href="http://refractiveindex.info/" target="_blank">这个</a>。下面列举了一些从 Naty Hoffman 的课程讲义中所得到的常见数值：
 
-<table>
+<table align="center">
   <tr>
   	<th>Material</th>
-  	<th>\(F_0\) (Linear)</th>
-  	<th>\(F_0\) (sRGB)</th>
+  	<th>$F_0$ (Linear)</th>
+  	<th>$F_0$ (sRGB)</th>
   	<th>Color</th>
   </tr>  
   <tr>
-    <td>Water</td>
+    <td>Water 水</td>
     <td><code>(0.02, 0.02, 0.02)</code></td>
     <td><code>&nbsp;(0.15, 0.15, 0.15)</code>&nbsp;&nbsp;</td>
  	<td style="background-color: #262626"></td> 
@@ -542,47 +542,176 @@ The surface's response at normal incidence, or the base reflectivity, can be fou
  	<td style="background-color: #4F4F4F"></td> 
   </tr>
   <tr>
-    <td>Diamond</td>
+    <td>Diamond 钻石</td>
     <td><code>(0.17, 0.17, 0.17)</code></td>
     <td><code>(0.45, 0.45, 0.45)</code></td>
  	<td style="background-color: #737373"></td> 
   </tr>
   <tr>
-    <td>Iron</td>
+    <td>Iron 铁</td>
     <td><code>(0.56, 0.57, 0.58)</code></td>
     <td><code>(0.77, 0.78, 0.78)</code></td>
  	<td style="background-color: #C5C8C8"></td> 
   </tr>
   <tr>
-    <td>Copper</td>
+    <td>Copper 铜</td>
     <td><code>(0.95, 0.64, 0.54)</code></td>
     <td><code>(0.98, 0.82, 0.76)</code></td>
  	<td style="background-color: #FBD2C3"></td> 
   </tr>
   <tr>
-    <td>Gold</td>
+    <td>Gold 金</td>
     <td><code>(1.00, 0.71, 0.29)</code></td>
     <td><code>(1.00, 0.86, 0.57)</code></td>
  	<td style="background-color: #FFDC92"></td> 
   </tr>
   <tr>
-    <td>Aluminium</td>
+    <td>Aluminium 铝</td>
     <td><code>(0.91, 0.92, 0.92)</code></td>
     <td><code>(0.96, 0.96, 0.97)</code></td>
  	<td style="background-color: #F6F6F8"></td> 
   </tr>
   <tr>
-    <td>Silver</td>
+    <td>Silver 银</td>
     <td><code>(0.95, 0.93, 0.88)</code></td>
     <td><code>(0.98, 0.97, 0.95)</code></td>
  	<td style="background-color: #FBF8F3"></td> 
   </tr>
- 
 </table>
+
+What is interesting to observe here is that for all dielectric surfaces the base reflectivity never gets above 0.17 which is the exception rather than the rule, while for conductors the base reflectivity starts much higher and (mostly) varies between 0.5 and 1.0. Furthermore, for conductors (or metallic surfaces) the base reflectivity is tinted. This is why $F_0$ is presented as an RGB triplet (reflectivity at normal incidence can vary per wavelength); this is something we <strong>only</strong> see at metallic surfaces.
+
+值得注意的是，对于表中所有电介质表面，其基础反射率都没有超过 0.17，这是例外而非普遍情况。而对于导体，基础反射率起点更高一些，并且（大部分）在 0.5 至 1.0 之间变化。此外，导体（或金属表面）的基础反射率一般是带有色彩的。这就是为什么 $F_0$ 要用 RGB 三原色来表示的原因（法向入射时的反射率会因波长而异）。这种基础反射率带色彩的现象我们只能在金属表面观察的到。
+
+These specific attributes of metallic surfaces compared to dielectric surfaces gave rise to something called the metallic workflow. In the metallic workflow we author surface materials with an extra parameter known as metalness that describes whether a surface is either a metallic or a non-metallic surface.
+
+与电介质表面相比，金属表面的这些特殊属性催生出了所谓的金属工作流。在金属工作流中编写表面材质时，我们会额外添加一个称为金属度的参数，用来描述表面是金属表面还是非金属表面。
+
+<div class="note-box">
+  <p>
+    Theoretically, the metalness of a material is binary: it's either a metal or it isn't; it can't be both. However, most render pipelines allow configuring the metalness of a surface linearly between 0.0 and 1.0. This is mostly because of the lack of material texture precision. For instance, a surface having small (non-metal) dust/sand-like particles/scratches over a metallic surface is difficult to render with binary metalness values.<br>
+    <br>
+    理论上，材质的金属度是二元的：要么是金属，要么不是，不能两个都是。不过，大多数渲染管线允许在 0.0 和 1.0 之间线性配置表面的金属度。这主要是因为材质纹理精度不够。例如，在有细小（非金属）灰尘/沙粒/划痕的金属表面上就很难用二元金属度来渲染。
+  </p>
+</div>
+
+By pre-computing $F_0$ for both dielectrics and conductors we can use the same Fresnel-Schlick approximation for both types of surfaces, but we do have to tint the base reflectivity if we have a metallic surface. We generally accomplish this as follows:
+
+通过预先计算电介质和导体的 $F_0$，我们可以对这两种类型的表面使用相同的菲涅尔-施利克近似法，但如果是金属表面，我们必须对基本反射率进行调色。一般来说，我们可以通过以下方法实现这一目的：
+
+```glsl
+vec3 F0 = vec3(0.04);
+F0      = mix(F0, surfaceColor.rgb, metalness);
+```
+
+We define a base reflectivity that is approximated for most dielectric surfaces. This is yet another approximation as $F_0$ is averaged around most common dielectrics. A base reflectivity of 0.04 holds for most dielectrics and produces physically plausible results without having to author an additional surface parameter. Then, based on how metallic a surface is, we either take the dielectric base reflectivity or take $F_0$ authored as the surface color. Because metallic surfaces absorb all refracted light they have no diffuse reflections and we can directly use the surface color texture as their base reflectivity.
+
+在上面代码中，为了可以描述大多数电介质表面，我们定义了一个大概的基础反射率。$F_0$ 取的是大多数常见电介质基础反射率的平均值，这是我们之前提到的菲涅尔-施利克近似之外又一种近似。0.04 的基础反射率适用于大多数电介质，在不必编写额外的表面参数时能产生物理上合理的结果。然后，根据表面的金属特性，我们要么采用电介质的基本反射率，要么采用 $F_0$ 来作为表面颜色。由于金属表面会吸收所有折射光，因此没有漫反射，我们可以直接使用表面颜色纹理作为其基本反射率。
+
+In code, the Fresnel Schlick approximation translates to:
+
+菲涅尔-施利克近似法写成代码形式是：
+
+```glsl
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+```
+
+With <code>cosTheta</code> being the dot product result between the surface's normal $n$ and the halfway $h$ (or view $v$) direction.
+
+其中 <code>cosTheta</code> 是表面法线 $n$ 和半程向量 $h$ 的点积（或者表面法线 $n$ 和观察向量 $v$ 点积，两者都可以）。
+
+## Cook-Torrance reflectance equation
+
+With every component of the Cook-Torrance BRDF described, we can include the physically based BRDF into the now final reflectance equation:
+
+随着 Cook-Torrance BRDF 中所有元素都介绍完毕，我们现在可以将基于物理的 BRDF 纳入到最终的反射率方程当中去了：
+
+$$
+L_o(p,\omega_o) = \int\limits_{\Omega} 
+    	            (k_d\frac{c}{\pi} + k_s\frac{DFG}{4(\omega_o \cdot n)(\omega_i \cdot n)})
+    	            L_i(p,\omega_i) n \cdot \omega_i  d\omega_i
+$$
+
+This equation is not fully mathematically correct however. You may remember that the Fresnel term $F$ represents the ratio of light that gets <em>reflected</em> on a surface. This is effectively our ratio $k_s$, meaning the specular (BRDF) part of the reflectance equation implicitly contains the reflectance ratio $k_s$. Given this, our final final reflectance equation becomes:
+
+然而，这个等式在数学上并不完全正确。你可能还记得菲涅尔项 $F$ 代表表面反射光的比率。这实际上就是我们上式中的比率 $k_s$，也就是说，反射方程的镜面反射（BRDF）部分隐含了反射比率 $k_s$。有鉴于此，我们最终的反射方程就变成了：
+
+$$
+L_o(p,\omega_o) = \int\limits_{\Omega} 
+    	            (k_d\frac{c}{\pi} + \frac{DFG}{4(\omega_o \cdot n)(\omega_i \cdot n)})
+    	            L_i(p,\omega_i) n \cdot \omega_i  d\omega_i
+$$
+
+This equation now completely describes a physically based render model that is generally recognized as what we commonly understand as physically based rendering, or PBR. Don't worry if you didn't yet completely understand how we'll need to fit all the discussed mathematics together in code. In the next chapters, we'll explore how to utilize the reflectance equation to get much more physically plausible results in our rendered lighting and all the bits and pieces should slowly start to fit together.
+
+这个方程现在完整的描述了一个基于物理的渲染模型，也就是我们通常理解的基于物理的渲染，或称 PBR。如果你还不知道如何在代码中将所有讨论过的数学知识融合在一起，不用担心。在接下来的章节中，我们将探讨如何利用反射方程在渲染光照中获得更多物理上可信的结果，在这一过程中所有的零碎部分都会慢慢融合在一起。
+
+# Authoring PBR materials
+
+With knowledge of the underlying mathematical model of PBR we'll finalize the discussion by describing how artists generally author the physical properties of a surface that we can directly feed into the PBR equations. Each of the surface parameters we need for a PBR pipeline can be defined or modeled by textures. Using textures gives us per-fragment control over how each specific surface point should react to light: whether that point is metallic, rough or smooth, or how the surface responds to different wavelengths of light.
+
+在了解了 PBR 的基本数学模型后，我们将通过说明美术师一般如何创作表面的物理特性（我们可以直接将其输入 PBR 方程）来结束这部分的讨论。PBR 管线所需的每个表面参数都可以通过纹理来定义或建模。使用纹理可以让我们按片段控制每个特定表面点对光线的反应：该点是金属的、粗糙的还是光滑的，或者表面对不同波长光线的反应。
+
+Below you'll see a list of textures you'll frequently find in a PBR pipeline together with its visual output if supplied to a PBR renderer:
+
+下面列出了 PBR 管线中常见的纹理，以及将它们输入 PBR 渲染器后所能得到的视觉输出：
+
+<p align="center">
+  <img src="../../../../images/LearnOpenGL-PBR-Theory-PBRTextures.png">
+</p>
+
+<strong>Albedo</strong>: the albedo texture specifies for each texel the color of the surface, or the base reflectivity if that texel is metallic. This is largely similar to what we've been using before as a diffuse texture, but all lighting information is extracted from the texture. Diffuse textures often have slight shadows or darkened crevices inside the image which is something you don't want in an albedo texture; it should only contain the color (or refracted absorption coefficients) of the surface. 
+
+<strong>反照率</strong>：反照率纹理为每个表面像素指定了颜色，如果是金属表面像素，则指定的是基础反射率。这与我们之前使用的漫反射纹理大体相似，但所有光照信息都是从纹理中提取的。漫反射纹理通常会在图像内部产生轻微的阴影或变暗的缝隙，而反照率纹理则不希望出现这种情况；它应该只包含表面的颜色（或折射吸收系数）。
+
+<strong>Normal</strong>: the normal map texture is exactly as we've been using before in the [normal mapping]("https://learnopengl.com/Advanced-Lighting/Normal-Mapping") chapter. The normal map allows us to specify, per fragment, a unique normal to give the illusion that a surface is <em>bumpier</em> than its flat counterpart. 
+
+<strong>法线贴图</strong>：法线贴图纹理与我们之前在[法线贴图](("https://learnopengl.com/Advanced-Lighting/Normal-Mapping"))章节中使用的完全相同。通过法线贴图，我们可以为每个片段指定一个独特的法线，从而为表面制造出凹凸不平的假象。
+
+<strong>Metallic</strong>: the metallic map specifies per texel whether a texel is either metallic or it isn't. Based on how the PBR engine is set up, artists can author metalness as either grayscale values or as binary black or white.
+
+<strong>金属度</strong>：金属贴图为每个像素指定了该像素是否具有金属质感。根据 PBR 引擎的设置方式，美术师可以将金属质感设置为灰度值或黑白二元值。
+
+<strong>Roughness</strong>: the roughness map specifies how rough a surface is on a per texel basis. The sampled roughness value of the roughness influences the statistical microfacet orientations of the surface. A rougher surface gets wider and blurrier reflections, while a smooth surface gets focused and clear reflections. Some PBR engines expect a smoothness map instead of a roughness map which some artists find more intuitive. These values are then translated (<code>1.0 - smoothness</code>) to roughness the moment they're sampled.
+
+<strong>粗糙度</strong>：粗糙度贴图为每个表面像素指定粗糙程度。粗糙度的采样值会影响表面上微表面朝向的统计结果。粗糙的表面会得到更宽更模糊的反射，而光滑的表面则会得到集中而清晰的反射。因为某些美术师认为平滑度图更直观，所以在一些 PBR 引擎中需要输入的是平滑度图而不是粗糙度图。不过这些平滑度图在采样之后就被（使用 <code>1.0 - smoothness</code>）转换成了粗糙度。
+
+<strong>AO</strong>: the ambient occlusion or AO map specifies an extra shadowing factor of the surface and potentially surrounding geometry. If we have a brick surface for instance, the albedo texture should have no shadowing information inside the brick's crevices. The AO map however does specify these darkened edges as it's more difficult for light to escape. Taking ambient occlusion in account at the end of the lighting stage can significantly boost the visual quality of your scene. The ambient occlusion map of a mesh/surface is either manually generated, or pre-calculated in 3D modeling programs.
+
+<strong>环境光遮蔽</strong>：环境光遮蔽或 AO 贴图为表面和周围潜在的几何体指定了一个额外的阴影系数。例如，如果我们有一个砖块表面，反照率纹理应该没有砖块缝隙内的阴影信息。然而，AO 贴图会把那些光线较难逃逸出来的黑暗边缘指定出来。在光照阶段的最后引入环境光遮蔽，可以显著提升场景的视觉质量。网格/表面的环境光遮蔽贴图可以手动生成，也可以在 3D 建模程序中预先计算。
+
+Artists set and tweak these physically based input values on a per-texel basis and can base their texture values on the physical surface properties of real-world materials. This is one of the biggest advantages of a PBR render pipeline as these physical properties of a surface remain the same, regardless of environment or lighting setup, making life easier for artists to get physically plausible results. Surfaces authored in a PBR pipeline can easily be shared among different PBR render engines, will look correct regardless of the environment they're in, and as a result look much more natural.
+
+美术师可以在纹素级别设置和调整这些基于物理的输入值，并根据真实世界材料的物理表面属性来设置纹理值。这是 PBR 渲染管线的最大优势之一，因为无论环境或光照如何设置，表面的这些物理属性都保持不变，从而使艺术家更容易获得物理上可信的效果。在 PBR 管线中制作的表面可以很容易地在不同的 PBR 渲染引擎中共享，无论它们处于何种环境中，看起来都是正确的，因此看起来也会更加自然。
 
 > ## References:
 >
 > * [Understanding the Fresnel Effect](https://www.dorian-iten.com/fresnel/)
+>
+> * [Schlick's approximation - wikipedia](https://en.wikipedia.org/wiki/Schlick%27s_approximation)
+>
+> * [Physically Based Rendering - pbr-book](https://www.pbr-book.org/4ed/contents)
+>
+> * [Reflection Models - stanford](https://graphics.stanford.edu/courses/cs348b-11/lectures/reflection_ii/reflection_ii.pdf)
+>
+> * [Reflection Models I - stanford](https://graphics.stanford.edu/courses/cs348b-11/lectures/reflection_i/reflection_i.pdf)
+>
+> * [Background: Physics and Math of Shading by Naty Hoffmann](http://blog.selfshadow.com/publications/s2013-shading-course/hoffman/s2013_pbs_physics_math_notes.pdf)
+>
+> * [Real shading in Unreal Engine 4](http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf)
+>
+> * [[SH17C] Physically Based Shading, by knarkowicz](https://www.shadertoy.com/view/4sSfzK)
+>
+> * [Marmoset: PBR Theory](https://www.marmoset.co/toolbag/learn/pbr-theory)
+>
+> * [Coding Labs: Physically based rendering](http://www.codinglabs.net/article_physically_based_rendering.aspx)
+>
+> * [Coding Labs: Physically Based Rendering - Cook-Torrance](http://www.codinglabs.net/article_physically_based_rendering_cook_torrance.aspx)
+>
+> * [Wolfire Games - Physically based rendering](http://blog.wolfire.com/2015/10/Physically-based-rendering)
 >
 
 [back](./)
